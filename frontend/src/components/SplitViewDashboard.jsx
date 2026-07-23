@@ -1,4 +1,5 @@
 import React from 'react';
+import { IconDashboard, IconAlert } from './Icons.jsx';
 
 export default function SplitViewDashboard({ summary }) {
   if (!summary) return null;
@@ -20,9 +21,14 @@ export default function SplitViewDashboard({ summary }) {
     }}>
       {/* Panel Izquierdo: Analítica de Bodegas */}
       <div className="corporate-card">
-        <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00427b', marginBottom: '20px' }}>
-          📊 Estado por Bodega Hotelera
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div style={{ padding: '6px', backgroundColor: '#f1f3ff', borderRadius: '6px', display: 'flex' }}>
+            <IconDashboard size={20} color="#00427b" />
+          </div>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00427b', margin: 0 }}>
+            Estado por Bodega Hotelera
+          </h3>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {Object.entries(warehouseStats).map(([bodegaName, stats]) => (
@@ -56,9 +62,14 @@ export default function SplitViewDashboard({ summary }) {
 
       {/* Panel Derecho: Lista de Descuadres Críticos */}
       <div className="corporate-card">
-        <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#111827', marginBottom: '20px' }}>
-          ⚠️ Descuadres Críticos Detectados por IA
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div style={{ padding: '6px', backgroundColor: '#FFDAD6', borderRadius: '6px', display: 'flex' }}>
+            <IconAlert size={20} color="#E30613" />
+          </div>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#111827', margin: 0 }}>
+            Descuadres Críticos Detectados por IA
+          </h3>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {summary.items_descuadrados.filter(i => i.estado !== 'COINCIDE').map(item => (

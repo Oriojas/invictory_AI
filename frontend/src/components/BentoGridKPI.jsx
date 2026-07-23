@@ -1,4 +1,5 @@
 import React from 'react';
+import { IconPackage, IconBot, IconAlert, IconCheck } from './Icons.jsx';
 
 export default function BentoGridKPI({ summary }) {
   if (!summary) return null;
@@ -16,7 +17,9 @@ export default function BentoGridKPI({ summary }) {
           <span className="font-geist" style={{ fontSize: '12px', fontWeight: 600, color: '#727782', letterSpacing: '0.5px' }}>
             SKUS EN ERP (SISTEMA)
           </span>
-          <span style={{ fontSize: '24px' }}>📦</span>
+          <div style={{ padding: '6px', backgroundColor: '#f1f3ff', borderRadius: '6px', display: 'flex' }}>
+            <IconPackage size={20} color="#00427b" />
+          </div>
         </div>
         <div className="font-geist" style={{ fontSize: '42px', fontWeight: 800, color: '#00427b', marginTop: '8px' }}>
           {summary.total_skus}
@@ -32,7 +35,9 @@ export default function BentoGridKPI({ summary }) {
           <span className="font-geist" style={{ fontSize: '12px', fontWeight: 600, color: '#727782', letterSpacing: '0.5px' }}>
             CONTEOS PROCESADOS IA
           </span>
-          <span style={{ fontSize: '24px' }}>🤖</span>
+          <div style={{ padding: '6px', backgroundColor: '#f1f3ff', borderRadius: '6px', display: 'flex' }}>
+            <IconBot size={20} color="#0059A3" />
+          </div>
         </div>
         <div className="font-geist" style={{ fontSize: '42px', fontWeight: 800, color: '#111827', marginTop: '8px' }}>
           {summary.total_conteos_ia}
@@ -48,7 +53,9 @@ export default function BentoGridKPI({ summary }) {
           <span className="font-geist" style={{ fontSize: '12px', fontWeight: 700, color: '#E30613', letterSpacing: '0.5px' }}>
             DESCUADRES DETECTADOS
           </span>
-          <span style={{ fontSize: '24px' }}>⚠️</span>
+          <div style={{ padding: '6px', backgroundColor: '#FFDAD6', borderRadius: '6px', display: 'flex' }}>
+            <IconAlert size={20} color="#E30613" />
+          </div>
         </div>
         <div className="font-geist" style={{ fontSize: '42px', fontWeight: 800, color: '#E30613', marginTop: '8px' }}>
           {summary.total_descuadres}
@@ -64,7 +71,9 @@ export default function BentoGridKPI({ summary }) {
           <span className="font-geist" style={{ fontSize: '12px', fontWeight: 600, color: '#727782', letterSpacing: '0.5px' }}>
             PRECISIÓN GLOBAL IA
           </span>
-          <span style={{ fontSize: '24px' }}>🎯</span>
+          <div style={{ padding: '6px', backgroundColor: '#e6f4ea', borderRadius: '6px', display: 'flex' }}>
+            <IconCheck size={20} color="#28A745" />
+          </div>
         </div>
         <div className="font-geist" style={{ fontSize: '42px', fontWeight: 800, color: '#28A745', marginTop: '8px' }}>
           {summary.porcentaje_precision}%

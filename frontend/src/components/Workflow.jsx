@@ -1,29 +1,30 @@
 import React from 'react';
+import { IconMobile, IconBrain, IconAlert, IconDashboard } from './Icons.jsx';
 
 export default function Workflow() {
   const steps = [
     {
       num: '01',
       title: 'Telegram Mini App (Voz & Foto)',
-      icon: '📱',
+      icon: <IconMobile size={32} color="#00427b" />,
       desc: 'El operario dicta un audio de voz o toma una foto del empaque/estantería desde Telegram sin planillas de papel.'
     },
     {
       num: '02',
       title: 'IA Multimodal & Conciliación ERP',
-      icon: '🧠',
+      icon: <IconBrain size={32} color="#0059A3" />,
       desc: 'OpenAI Whisper (STT) y DeepSeek Vision (detail=high) extraen datos e inyectan el catálogo ERP para conciliar semánticamente jerga de bodega.'
     },
     {
       num: '03',
       title: 'Detección de Anomalías Pre-Guardado',
-      icon: '🚨',
+      icon: <IconAlert size={32} color="#E30613" />,
       desc: 'FastAPI compara la cantidad reportada contra el stock histórico. Si la desviación supera el umbral, genera una alerta y exige confirmación antes de guardar.'
     },
     {
       num: '04',
       title: 'Dashboard & Agente DeepSeek LLM',
-      icon: '🎯',
+      icon: <IconDashboard size={32} color="#00427b" />,
       desc: 'Visualización de descuadres en tiempo real con KPIs Bento Grid y consultas en lenguaje natural mediante Function Calling sobre PostgreSQL.'
     }
   ];
@@ -65,7 +66,18 @@ export default function Workflow() {
               PASO {step.num}
             </div>
 
-            <div style={{ fontSize: '36px', marginBottom: '14px' }}>{step.icon}</div>
+            <div style={{
+              width: '54px',
+              height: '54px',
+              borderRadius: '12px',
+              backgroundColor: '#f1f3ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '16px'
+            }}>
+              {step.icon}
+            </div>
             <h3 style={{ fontSize: '17px', fontWeight: 800, marginBottom: '8px', color: '#00427b' }}>{step.title}</h3>
             <p style={{ fontSize: '13px', color: '#414751', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
           </div>

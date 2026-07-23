@@ -5,6 +5,7 @@ import SplitViewDashboard from '../components/SplitViewDashboard.jsx';
 import MiniAppSimulator from '../components/MiniAppSimulator.jsx';
 import { fetchDiscrepancies as getDiscrepanciesAPI, seedInventory as seedInventoryAPI } from '../services/api.js';
 import { DEMO_SUMMARY } from '../mocks/demoSummary.js';
+import { IconDashboard, IconRefresh, IconCheck, IconAlert } from '../components/Icons.jsx';
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState(null);
@@ -61,8 +62,9 @@ export default function DashboardPage() {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <IconDashboard size={24} color="#FDD000" />
               <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF' }}>
-                📊 Dashboard MVP (Reto Hotelería)
+                Dashboard MVP (Reto Hotelería)
               </h2>
               <span style={{
                 fontSize: '11px',
@@ -71,9 +73,13 @@ export default function DashboardPage() {
                 padding: '4px 10px',
                 borderRadius: '4px',
                 fontWeight: 800,
-                fontFamily: "'Geist', monospace"
+                fontFamily: "'Geist', monospace",
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                {apiConnected ? '🟢 API Online' : '🟡 Modo Demo'}
+                {apiConnected ? <IconCheck size={12} color="#FFFFFF" /> : <IconAlert size={12} color="#FFFFFF" />}
+                {apiConnected ? 'API Online' : 'Modo Demo'}
               </span>
             </div>
             <p style={{ fontSize: '13px', color: '#b4d1ff', marginTop: '2px', fontWeight: 500 }}>
@@ -132,9 +138,9 @@ export default function DashboardPage() {
             <button
               onClick={reseedDatabase}
               className="corporate-btn corporate-btn-yellow"
-              style={{ padding: '8px 14px', fontSize: '12px' }}
+              style={{ padding: '8px 14px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              🔄 Restablecer 12 SKUs
+              <IconRefresh size={14} color="#111827" /> Restablecer 12 SKUs
             </button>
           </div>
         </div>

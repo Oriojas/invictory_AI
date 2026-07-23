@@ -1,4 +1,5 @@
 import React from 'react';
+import { IconList, IconMic, IconCamera, IconPackage } from './Icons.jsx';
 
 export default function DiscrepancyTable({ items, filterStatus, setFilterStatus }) {
   if (!items) return null;
@@ -22,13 +23,18 @@ export default function DiscrepancyTable({ items, filterStatus, setFilterStatus 
         flexWrap: 'wrap',
         gap: '16px'
       }}>
-        <div>
-          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00427b' }}>
-            📋 Inspección de Descuadres en Tiempo Real
-          </h3>
-          <p style={{ fontSize: '13px', color: '#414751', marginTop: '2px' }}>
-            Comparación directa entre Stock ERP vs Conteo Físico Capturado por la IA
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ padding: '8px', backgroundColor: '#f1f3ff', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+            <IconList size={22} color="#00427b" />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00427b' }}>
+              Inspección de Descuadres en Tiempo Real
+            </h3>
+            <p style={{ fontSize: '13px', color: '#414751', marginTop: '2px' }}>
+              Comparación directa entre Stock ERP vs Conteo Físico Capturado por la IA
+            </p>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -115,7 +121,19 @@ export default function DiscrepancyTable({ items, filterStatus, setFilterStatus 
                     </span>
                   </td>
                   <td style={{ padding: '14px 16px', fontSize: '12px', color: '#727782' }}>
-                    {item.ultima_fuente === 'audio' ? '🎙️ Voz (Whisper)' : item.ultima_fuente === 'imagen' ? '📸 Foto (DeepSeek)' : '⚙️ ERP'}
+                    {item.ultima_fuente === 'audio' ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <IconMic size={14} color="#00427b" /> Voz (Whisper)
+                      </span>
+                    ) : item.ultima_fuente === 'imagen' ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <IconCamera size={14} color="#0059A3" /> Foto (DeepSeek)
+                      </span>
+                    ) : (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <IconPackage size={14} color="#727782" /> ERP
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

@@ -1,33 +1,34 @@
 import React from 'react';
+import { IconMobile, IconAlert, IconBrain, IconRuler, IconDashboard, IconZap } from './Icons.jsx';
 
 export default function Hero({ onGoToDashboard }) {
   const differentiators = [
     {
-      icon: '📱',
+      icon: <IconMobile size={28} color="#00427b" />,
       badge: 'CERO PAPEL',
       title: 'Captura Natural (Voz & Foto)',
       desc: 'Telegram Mini App para operarios con OpenAI Whisper STT y DeepSeek Vision OCR detail: high desde tabletas corporativas.'
     },
     {
-      icon: '🚨',
+      icon: <IconAlert size={28} color="#E30613" />,
       badge: 'ALERTA EN TIEMPO REAL',
       title: 'Detección de Anomalías Pre-Guardado',
       desc: 'Alertas inmediatas y confirmación requerida si el conteo dictado (ej: 90 unidades) se desvía del historial ERP (9 unidades).'
     },
     {
-      icon: '🧠',
+      icon: <IconBrain size={28} color="#0059A3" />,
       badge: 'MATCHING ERP',
       title: 'Conciliación Semántica LLM',
       desc: 'Traducción inteligente de jerga de bodega ("ollas grandes") al SKU exacto del ERP ("Caldero Recort Tapa 50x60 cm").'
     },
     {
-      icon: '📐',
+      icon: <IconRuler size={28} color="#725c00" />,
       badge: 'SOPORTE DE MERMAS',
       title: 'Manejo de Fracciones',
       desc: 'Interpretación de productos abiertos y porciones ("medio kilo", "botella a la mitad", 0.5/0.25) convertidos a float.'
     },
     {
-      icon: '📊',
+      icon: <IconDashboard size={28} color="#00427b" />,
       badge: 'PUNTOS EXTRA',
       title: 'Dashboard & Agente DeepSeek',
       desc: 'KPIs Bento, auditoría de descuadres y Agente LLM con Function Calling sobre PostgreSQL para preguntas en lenguaje natural.'
@@ -43,7 +44,9 @@ export default function Hero({ onGoToDashboard }) {
     }}>
       {/* Badge Superior con Accent Yellow */}
       <div style={{
-        display: 'inline-block',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
         backgroundColor: '#FDD000',
         color: '#111827',
         fontWeight: 800,
@@ -103,7 +106,7 @@ export default function Hero({ onGoToDashboard }) {
       }}>
         {differentiators.map((d, i) => (
           <div key={i} className="corporate-card" style={{
-            padding: '16px',
+            padding: '18px',
             backgroundColor: '#FFFFFF',
             border: '1px solid #c1c6d3',
             borderRadius: '10px',
@@ -112,14 +115,23 @@ export default function Hero({ onGoToDashboard }) {
             justifyContent: 'space-between'
           }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <span style={{ fontSize: '26px' }}>{d.icon}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={{
+                  padding: '8px',
+                  backgroundColor: '#f1f3ff',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {d.icon}
+                </div>
                 <span style={{
                   fontSize: '9px',
                   fontWeight: 900,
                   backgroundColor: '#00427b',
                   color: '#FFFFFF',
-                  padding: '2px 7px',
+                  padding: '3px 8px',
                   borderRadius: '4px',
                   fontFamily: "'Geist', monospace",
                   textTransform: 'uppercase'
@@ -140,15 +152,17 @@ export default function Hero({ onGoToDashboard }) {
 
       {/* Acciones Principales */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-        <button onClick={onGoToDashboard} className="corporate-btn" style={{ padding: '14px 28px', fontSize: '15px' }}>
-          📊 Abrir Dashboard & Detección de Anomalías
+        <button onClick={onGoToDashboard} className="corporate-btn" style={{ padding: '14px 28px', fontSize: '15px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          <IconDashboard size={18} color="#FFFFFF" />
+          Abrir Dashboard & Detección de Anomalías
         </button>
         <a
           href="#workflow-section"
           className="corporate-btn corporate-btn-yellow"
-          style={{ padding: '14px 28px', fontSize: '15px' }}
+          style={{ padding: '14px 28px', fontSize: '15px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
         >
-          ⚡ Ver Arquitectura del Sistema
+          <IconZap size={18} color="#111827" />
+          Ver Arquitectura del Sistema
         </a>
       </div>
     </section>

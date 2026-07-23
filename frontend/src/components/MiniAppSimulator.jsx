@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { captureAudio, captureImage } from '../services/api.js';
+import { IconZap, IconMic, IconCamera, IconAlert, IconCheck, IconPackage, IconLock } from './Icons.jsx';
 
 export default function MiniAppSimulator({ onCaptureSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -10,20 +11,19 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
   const handleCaptureResponse = (res) => {
     if (res.ok && res.data) {
       const data = res.data;
-      // Nueva estructura CaptureResponse: { conteo, anomaly }
       if (data.anomaly && data.anomaly.is_anomaly) {
         setAnomalyAlert(data.anomaly);
-        setStatusMsg(`⚠️ ${data.anomaly.message}`);
+        setStatusMsg(data.anomaly.message);
         setIsError(true);
       } else {
         setAnomalyAlert(null);
         const conteo = data.conteo || data;
-        setStatusMsg(`✅ Conteo registrado: ${conteo.producto_nombre} → ${conteo.cantidad_contada} (${conteo.fuente})`);
+        setStatusMsg(`Conteo registrado: ${conteo.producto_nombre} → ${conteo.cantidad_contada} (${conteo.fuente})`);
       }
     } else {
       setIsError(true);
       const detail = res.data?.detail || `HTTP ${res.status}`;
-      setStatusMsg(`⚠️ El backend rechazó la captura: ${detail}`);
+      setStatusMsg(`El backend rechazó la captura: ${detail}`);
     }
   };
 
@@ -31,7 +31,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
     setLoading(true);
     setIsError(false);
     setAnomalyAlert(null);
-    setStatusMsg('🎙️ Procesando audio simulado con OpenAI Whisper & DeepSeek...');
+    setStatusMsg('Procesando audio simulado con OpenAI Whisper & DeepSeek...');
 
     try {
       const dummyBlob = new Blob(["Simulación de audio de voz dictado: 15 cazuelas de 16 onzas en almacén de suministros"], { type: "audio/wav" });
@@ -39,7 +39,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
       handleCaptureResponse(res);
     } catch (e) {
       setIsError(true);
-      setStatusMsg(`⚠️ Error de conexión con el backend: ${e.message}`);
+      setStatusMsg(`Error de conexión con el backend: ${e.message}`);
     } finally {
       setLoading(false);
       setTimeout(() => {
@@ -52,7 +52,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
     setLoading(true);
     setIsError(false);
     setAnomalyAlert(null);
-    setStatusMsg('📸 Ejecutando OCR en imagen con OpenAI Vision (detail=high)...');
+    setStatusMsg('Ejecutando OCR en imagen con OpenAI Vision (detail=high)...');
 
     try {
       const dummyBlob = new Blob(["Simulación de imagen OCR: 18 cintas sellamiento"], { type: "image/webp" });
@@ -60,7 +60,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
       handleCaptureResponse(res);
     } catch (e) {
       setIsError(true);
-      setStatusMsg(`⚠️ Error de conexión con el backend: ${e.message}`);
+      setStatusMsg(`Error de conexión con el backend: ${e.message}`);
     } finally {
       setLoading(false);
       setTimeout(() => {
@@ -73,11 +73,11 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
     <div className="corporate-card" style={{ marginBottom: '28px', backgroundColor: '#FFFFFF', border: '1px solid #00427b' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <div style={{ display: 'inline-block', backgroundColor: '#FDD000', color: '#111827', fontWeight: 800, fontSize: '11px', padding: '3px 8px', borderRadius: '4px', marginBottom: '4px' }}>
-            PRUEBA EN VIVO
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#FDD000', color: '#111827', fontWeight: 800, fontSize: '11px', padding: '3px 8px', borderRadius: '4px', marginBottom: '4px' }}>
+            <IconZap size={13} color="#111827" /> PRUEBA EN VIVO
           </div>
           <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#00427b' }}>
-            ⚡ Simulación de Captura (Telegram MiniApp)
+            Simulación de Captura (Telegram MiniApp)
           </h3>
           <p style={{ fontSize: '13px', color: '#414751', marginTop: '2px' }}>
             Simula entradas por voz u OCR para ver cómo se actualiza el reporte de descuadres en tiempo real.
@@ -89,17 +89,17 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
             onClick={simulateAudio}
             disabled={loading}
             className="corporate-btn"
-            style={{ fontSize: '13px', padding: '10px 18px' }}
+            style={{ fontSize: '13px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            🎙️ Simular Conteo por Voz
+            <IconMic size={16} color="#FFFFFF" /> Simular Conteo por Voz
           </button>
           <button
             onClick={simulateImage}
             disabled={loading}
             className="corporate-btn corporate-btn-yellow"
-            style={{ fontSize: '13px', padding: '10px 18px' }}
+            style={{ fontSize: '13px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            📸 Simular Conteo por Foto OCR
+            <IconCamera size={16} color="#111827" /> Simular Conteo por Foto OCR
           </button>
         </div>
       </div>
@@ -113,9 +113,13 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
           fontWeight: 700,
           borderRadius: '6px',
           fontSize: '13px',
-          border: isError ? '1px solid #E30613' : '1px solid #b4d1ff'
+          border: isError ? '1px solid #E30613' : '1px solid #b4d1ff',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          {statusMsg}
+          {isError ? <IconAlert size={18} color="#E30613" /> : <IconCheck size={18} color="#00427b" />}
+          <span>{statusMsg}</span>
         </div>
       )}
 
@@ -130,9 +134,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
           animation: 'pulse 1.5s infinite'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '22px' }}>
-              {anomalyAlert.severity === 'CRITICA' ? '🚨' : anomalyAlert.severity === 'ALTA' ? '⚠️' : 'ℹ️'}
-            </span>
+            <IconAlert size={22} color={anomalyAlert.severity === 'CRITICA' ? '#E30613' : '#856404'} />
             <span style={{
               fontWeight: 900,
               fontSize: '14px',
@@ -153,11 +155,17 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
               fontSize: '12px',
               fontFamily: "'Geist', monospace",
               fontWeight: 700,
-              color: '#414751'
+              color: '#414751',
+              flexWrap: 'wrap',
+              alignItems: 'center'
             }}>
-              <span>📦 Stock ERP: {anomalyAlert.expected_quantity}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <IconPackage size={14} color="#414751" /> Stock ERP: {anomalyAlert.expected_quantity}
+              </span>
               <span>📊 Desviación: {anomalyAlert.deviation_percent}%</span>
-              <span>🔒 {anomalyAlert.requires_confirmation ? 'Requiere confirmación' : 'Registrado con alerta'}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <IconLock size={14} color="#414751" /> {anomalyAlert.requires_confirmation ? 'Requiere confirmación' : 'Registrado con alerta'}
+              </span>
             </div>
           )}
         </div>
