@@ -1,7 +1,7 @@
 import os
 from typing import List
-from pydantic_settings import BaseSettings
-from pydantic import field_validator, ConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Invictory_AI API"
@@ -47,7 +47,7 @@ class Settings(BaseSettings):
             return v.strip().strip('"').strip("'")
         return v
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         case_sensitive=True,
         env_file=".env",
         env_file_encoding="utf-8",
