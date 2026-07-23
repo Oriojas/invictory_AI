@@ -1,113 +1,152 @@
 import React from 'react';
 import { IconMobile, IconAlert, IconBrain, IconRuler, IconDashboard, IconZap, IconList } from './Icons.jsx';
+import HeroAnimation from './HeroAnimation.jsx';
 
 export default function Hero({ onGoToDashboard }) {
   const differentiators = [
     {
-      icon: <IconMobile size={28} color="#00427b" />,
-      badge: 'REDUCCIÓN DE PAPEL',
-      title: 'Captura Natural (Voz & Foto)',
-      desc: 'Telegram Mini App para operarios con OpenAI Whisper STT y DeepSeek Vision OCR detail: high desde tabletas corporativas.'
+      icon: <IconMobile size={26} color="#0067b1" />,
+      badge: '0% PAPEL',
+      title: 'Captura Ágil Multimodal',
+      desc: 'El personal de bodega dicta por voz o toma fotos de productos desde la Telegram Mini App.'
     },
     {
-      icon: <IconAlert size={28} color="#E30613" />,
-      badge: 'ALERTA EN TIEMPO REAL',
+      icon: <IconAlert size={26} color="#E30613" />,
+      badge: 'ANTI-PÉRDIDAS',
       title: 'Detección de Anomalías Pre-Guardado',
-      desc: 'Alertas inmediatas y confirmación requerida si el conteo dictado (ej: 90 unidades) se desvía del historial ERP (9 unidades).'
+      desc: 'El sistema valida el conteo con el inventario teórico y alerta al instante ante cualquier discrepancia.'
     },
     {
-      icon: <IconBrain size={28} color="#0059A3" />,
-      badge: 'MATCHING ERP',
-      title: 'Conciliación Semántica LLM',
-      desc: 'Traducción inteligente de jerga de bodega ("ollas grandes") al SKU exacto del ERP ("Caldero Recort Tapa 50x60 cm").'
+      icon: <IconBrain size={26} color="#0067b1" />,
+      badge: 'CONCILIACIÓN ERP',
+      title: 'Traducción Semántica de Productos',
+      desc: 'Traduce jerga cotidiana de bodega o nombres regionales al SKU exacto del catálogo oficial.'
     },
     {
-      icon: <IconRuler size={28} color="#725c00" />,
-      badge: 'SOPORTE DE MERMAS',
-      title: 'Manejo de Fracciones',
-      desc: 'Interpretación de productos abiertos y porciones ("medio kilo", "botella a la mitad", 0.5/0.25) convertidos a float.'
+      icon: <IconRuler size={26} color="#575756" />,
+      badge: 'PRECISIÓN TOTAL',
+      title: 'Manejo de Fracciones y Mermas',
+      desc: 'Calcula automáticamente porciones, mermas y envases abiertos ("medio kilo", "botella a tres cuartos").'
     },
     {
-      icon: <IconList size={28} color="#00427b" />,
-      badge: 'RESPALDO OFFLINE',
-      title: 'Reporte Digital PDF Certificado',
-      desc: 'Exportación instantánea de reportes en PDF corporativo para auditorías formales, firmas de supervisores y contingencias sin señal.'
+      icon: <IconList size={26} color="#0067b1" />,
+      badge: 'RESPALDO DIGITAL',
+      title: 'Reportes PDF Certificados',
+      desc: 'Exportación inmediata de informes de auditoría en PDF estructurados para firmas corporativas.'
     },
     {
-      icon: <IconDashboard size={28} color="#00427b" />,
-      badge: 'PUNTOS EXTRA',
-      title: 'Dashboard & Agente DeepSeek',
-      desc: 'KPIs Bento, auditoría de descuadres y Agente LLM con Function Calling sobre PostgreSQL para preguntas en lenguaje natural.'
+      icon: <IconDashboard size={26} color="#0067b1" />,
+      badge: 'CONTROL 24/7',
+      title: 'Panel Ejecutivo & Asistente IA',
+      desc: 'Visualización de descuadres en tiempo real con asistente virtual para responder preguntas sobre stock.'
     }
   ];
 
   return (
     <section style={{
-      maxWidth: '1200px',
-      margin: '30px auto 40px auto',
-      padding: '0 20px',
-      textAlign: 'center'
+      maxWidth: '1280px',
+      margin: '20px auto 40px auto',
+      padding: '0 24px',
+      position: 'relative'
     }}>
-      {/* Badge Superior con Accent Yellow */}
-      <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        backgroundColor: '#FDD000',
-        color: '#111827',
-        fontWeight: 800,
-        fontSize: '12px',
-        padding: '6px 18px',
-        borderRadius: '20px',
-        marginBottom: '20px',
-        border: '1px solid #c1c6d3',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.8px'
-      }}>
-        🏆 Solución Ganadora Reto Hotelería | Hackathon Colsubsidio x 30X
+      {/* Sección Superior: Titular & Descripción */}
+      <div style={{ textAlign: 'center', maxWidth: '840px', margin: '0 auto 36px auto' }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          backgroundColor: '#ffd000', // Amarillo Colsubsidio
+          color: '#111827',
+          fontWeight: 800,
+          fontSize: '12px',
+          padding: '6px 18px',
+          borderRadius: '20px',
+          marginBottom: '20px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.8px'
+        }}>
+          ⚡ Control Inteligente de Inventarios & Bodegas
+        </div>
+
+        <h1 style={{
+          fontSize: '44px',
+          fontWeight: 900,
+          lineHeight: 1.15,
+          letterSpacing: '-1.2px',
+          marginBottom: '20px',
+          color: '#111827'
+        }}>
+          Toma de inventarios en minutos, <br />
+          <span style={{
+            color: '#0067b1', // Azul Colsubsidio
+            backgroundColor: '#f0f6fa',
+            padding: '2px 16px',
+            borderRadius: '8px',
+            display: 'inline-block',
+            marginTop: '6px'
+          }}>
+            0% errores manuales y control de mermas
+          </span>
+        </h1>
+
+        <p style={{
+          fontSize: '18px',
+          color: '#575756', // Grafito Colsubsidio
+          lineHeight: 1.6,
+          fontWeight: 500,
+          marginBottom: '32px'
+        }}>
+          Elimina las planillas de papel. Invictory_AI permite a tu equipo registrar existencias hablando o tomando fotos. Nuestra IA audita las cifras en tiempo real y <strong>previene descuadres financieros antes de guardar el conteo</strong>.
+        </p>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <button
+            onClick={onGoToDashboard}
+            className="corporate-btn"
+            style={{
+              backgroundColor: '#0067b1', // Azul Colsubsidio
+              padding: '16px 36px',
+              fontSize: '15px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+          >
+            <IconDashboard size={20} color="#FFFFFF" />
+            Probar Demo Interactivo
+          </button>
+          <a
+            href="#workflow-section"
+            className="corporate-btn corporate-btn-yellow"
+            style={{
+              backgroundColor: '#ffd000', // Amarillo Colsubsidio
+              color: '#111827',
+              padding: '16px 30px',
+              fontSize: '15px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+          >
+            <IconZap size={20} color="#111827" />
+            Ver Cómo Funciona
+          </a>
+        </div>
       </div>
 
-      {/* Titular Principal en Action Blue & Manrope */}
-      <h1 style={{
-        fontSize: '44px',
-        fontWeight: 900,
-        lineHeight: 1.15,
-        letterSpacing: '-1.2px',
-        marginBottom: '20px',
-        color: '#111827'
-      }}>
-        Captura Inteligente de Inventarios <br />
-        <span style={{
-          color: '#00427b',
-          backgroundColor: '#e9edff',
-          padding: '4px 16px',
-          borderRadius: '8px',
-          display: 'inline-block',
-          marginTop: '8px'
-        }}>
-          IA Multimodal · Anomalías Pre-Guardado · Reducción de Papel
-        </span>
-      </h1>
+      {/* Animación SVG Fluida & Organizada (Invictory AI Workflow Animation) */}
+      <div style={{ marginBottom: '48px' }}>
+        <HeroAnimation />
+      </div>
 
-      {/* Descripción Ejecutiva */}
-      <p style={{
-        fontSize: '17px',
-        color: '#414751',
-        maxWidth: '880px',
-        margin: '0 auto 32px auto',
-        lineHeight: 1.6,
-        fontWeight: 500
-      }}>
-        Reducimos drásticamente la dependencia de planillas físicas de papel. Operarios en bodega dictan voz o toman fotos en la <strong>Telegram Mini App</strong>; nuestro backend FastAPI valida el stock histórico en tiempo real, <strong>alerta antes de guardar anomalías</strong> y genera <strong>reportes digitales PDF certificados</strong> para auditorías formales y contingencias de baja conectividad.
-      </p>
 
-      {/* Grid Simétrico de Diferenciadores (3x2 en Desktop) */}
+      {/* Grid de 6 Tarjetas de Beneficios */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: '20px',
-        marginBottom: '36px',
         textAlign: 'left'
       }}>
         {differentiators.map((d, i) => (
@@ -119,13 +158,13 @@ export default function Hero({ onGoToDashboard }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 2px 6px rgba(0, 66, 123, 0.04)'
+            boxShadow: '0 2px 6px rgba(0, 103, 177, 0.04)'
           }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div style={{
                   padding: '10px',
-                  backgroundColor: '#f1f3ff',
+                  backgroundColor: '#f0f6fa',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
@@ -136,42 +175,27 @@ export default function Hero({ onGoToDashboard }) {
                 <span style={{
                   fontSize: '10px',
                   fontWeight: 900,
-                  backgroundColor: '#00427b',
+                  backgroundColor: '#0067b1', // Azul Colsubsidio
                   color: '#FFFFFF',
                   padding: '4px 10px',
                   borderRadius: '4px',
-                  fontFamily: "'Geist', monospace",
                   textTransform: 'uppercase'
                 }}>
                   {d.badge}
                 </span>
               </div>
-              <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#00427b', marginBottom: '8px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#0067b1', marginBottom: '8px' }}>
                 {d.title}
               </h4>
-              <p style={{ fontSize: '13px', color: '#414751', lineHeight: '1.5', margin: 0 }}>
+              <p style={{ fontSize: '13px', color: '#575756', lineHeight: '1.5', margin: 0 }}>
                 {d.desc}
               </p>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Acciones Principales */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-        <button onClick={onGoToDashboard} className="corporate-btn" style={{ padding: '14px 28px', fontSize: '15px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          <IconDashboard size={18} color="#FFFFFF" />
-          Abrir Dashboard & Detección de Anomalías
-        </button>
-        <a
-          href="#workflow-section"
-          className="corporate-btn corporate-btn-yellow"
-          style={{ padding: '14px 28px', fontSize: '15px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-        >
-          <IconZap size={18} color="#111827" />
-          Ver Arquitectura del Sistema
-        </a>
-      </div>
     </section>
   );
 }
+
+

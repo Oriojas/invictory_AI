@@ -1,12 +1,13 @@
-/* Corporate Innovation Framework Design System (docs/DESIGN .md) */
+/* Paleta Oficial Colsubsidio (Pantone 2196 C, 109 C, Cool Gray 11 C) */
 :root {
-  --color-primary: #00427b;         /* Action Blue principal */
-  --color-primary-hover: #0059A3;   /* Action Blue interactivo */
-  --color-accent-yellow: #FDD000;   /* Accent Yellow para destacados */
+  --color-primary: #0067b1;         /* Azul Colsubsidio (Pantone 2196 C) */
+  --color-primary-hover: #00528e;   /* Azul Colsubsidio interactivo */
+  --color-accent-yellow: #ffd000;   /* Amarillo Colsubsidio (Pantone 109 C) */
+  --color-grafito: #575756;         /* Grafito Colsubsidio (Pantone Cool Gray 11 C) */
   --color-ink-rich: #111827;        /* Texto principal charcoal */
   --color-surface-bg: #F8F7F2;      /* Fondo Surface Off-White */
   --color-surface-card: #FFFFFF;    /* Tarjetas en blanco puro */
-  --color-surface-low: #f1f3ff;
+  --color-surface-low: #f0f6fa;
   --color-outline: #c1c6d3;
 
   /* Estados Semánticos */
@@ -18,8 +19,8 @@
   --font-geist: 'Geist', monospace;
 
   /* Elevación y Sombras */
-  --shadow-card: 0 4px 16px rgba(0, 66, 123, 0.08);
-  --shadow-hover: 0 8px 24px rgba(0, 66, 123, 0.12);
+  --shadow-card: 0 4px 16px rgba(0, 103, 177, 0.08);
+  --shadow-hover: 0 8px 24px rgba(0, 103, 177, 0.14);
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -142,3 +143,89 @@ html, body, #root {
   background-color: #E2E8F0;
   color: #4A5568;
 }
+
+/* --- Efectos y Animaciones 3D para Landing Page --- */
+@keyframes float3d {
+  0% {
+    transform: translateY(0px) rotateY(-6deg) rotateX(4deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateY(-3deg) rotateX(2deg);
+  }
+  100% {
+    transform: translateY(0px) rotateY(-6deg) rotateX(4deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.hero-3d-container {
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.hero-3d-card {
+  transform-style: preserve-3d;
+  animation: float3d 6s ease-in-out infinite;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 66, 123, 0.25), 0 0 30px rgba(0, 89, 163, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  background: #0f172a;
+}
+
+.hero-3d-card:hover {
+  transform: translateY(-16px) rotateY(0deg) rotateX(0deg) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0, 66, 123, 0.35), 0 0 50px rgba(253, 208, 0, 0.25);
+}
+
+.gradient-glow-bg {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle, rgba(0, 103, 177, 0.15) 0%, rgba(255, 208, 0, 0.1) 40%, rgba(0,0,0,0) 70%);
+  animation: pulseGlow 8s infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --- Animaciones Minimalistas de Íconos del Workflow --- */
+@keyframes waveAnim {
+  0%, 100% { height: 10px; }
+  50% { height: 32px; }
+}
+
+@keyframes scanRadarAnim {
+  0% { top: 10%; opacity: 0.3; }
+  50% { top: 80%; opacity: 0.9; }
+  100% { top: 10%; opacity: 0.3; }
+}
+
+@keyframes barGrowAnim {
+  0% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+  100% { transform: scaleY(0.3); }
+}
+
+@keyframes pulseCheck {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+
