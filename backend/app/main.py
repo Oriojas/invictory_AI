@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.config import settings
 from backend.app.database import engine, Base, SessionLocal
-from backend.app.routers import capture, inventory, dashboard
+from backend.app.routers import capture, inventory, dashboard, agent
 from backend.app.routers.inventory import seed_inventory
 
 # Aplicar modelos a la base de datos PostgreSQL
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(capture.router)
 app.include_router(inventory.router)
 app.include_router(dashboard.router)
+app.include_router(agent.router)
 
 @app.on_event("startup")
 def startup_event():
