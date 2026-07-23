@@ -1,0 +1,36 @@
+/*
+ * Tokens de diseño — Corporate Innovation Framework.
+ * Duplicados localmente (opción A: miniapp autónoma). Fuente: docs/DESIGN .md.
+ * Si luego migramos a recurso compartido, este archivo se reemplaza por shared/tokens.css.
+ */
+:root {
+  /* Colores de marca */
+  --color-primary: #00427b;
+  --color-primary-hover: #0059a3;
+  --color-accent-yellow: #fdd000;
+  --color-alert-red: #e30613;
+  --color-ink-rich: #111827;
+  --color-on-surface-variant: #414751;
+
+  /* Superficies */
+  --color-surface-bg: #f8f7f2;
+  --color-card-white: #ffffff;
+  --color-outline: #c1c6d3;
+
+  /* Estados semánticos */
+  --color-error-bg: #fde8e8;
+  --color-warning-bg: #fff3cd;
+  --color-warning-border: #ffc107;
+  --color-warning-text: #856404;
+
+  /* Tipografía */
+  --font-body: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist", ui-monospace, "SF Mono", monospace;
+
+  /* Formas y sombras */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --border-muted: 1px solid var(--color-outline);
+  --shadow-card: 0 4px 14px rgba(0, 66, 123, 0.08);
+}
