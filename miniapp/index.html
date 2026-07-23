@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Invictory_AI - Telegram Mini App</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="badge">Colsubsidio x 30X</div>
+      <h1>Invictory_AI</h1>
+      <p>Captura Inteligente de Inventario Hotelero</p>
+    </header>
+
+    <main class="main-content">
+      <!-- Selector de Modo de Captura -->
+      <div class="mode-tabs">
+        <button id="tab-voice" class="tab-btn active">🎙️ Dictado por Voz</button>
+        <button id="tab-photo" class="tab-btn">📷 Captura OCR (Foto)</button>
+      </div>
+
+      <!-- Sección Dictado de Voz -->
+      <section id="section-voice" class="capture-card active">
+        <h2>Dictar Inventario por Audio</h2>
+        <p class="description">Presiona para grabar el conteo físico (ej. "Encontré 15 cazuelas en la bodega del restaurante").</p>
+        
+        <div class="audio-controls">
+          <button id="record-btn" class="action-btn record">
+            <span class="btn-icon">🎙️</span>
+            <span id="record-text">Iniciar Grabación</span>
+          </button>
+          <div id="recording-indicator" class="recording-wave hidden">
+            <span class="dot"></span> Grabando audio...
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección Captura de Foto (OCR) -->
+      <section id="section-photo" class="capture-card">
+        <h2>Capturar Foto de Productos</h2>
+        <p class="description">Sube una foto clara de los insumos o estanterías. DeepSeek Vision (high detail) extraerá el texto y cantidades.</p>
+        
+        <div class="photo-controls">
+          <label for="camera-input" class="action-btn photo-label">
+            <span class="btn-icon">📸</span> Tomar / Subir Foto
+          </label>
+          <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
+          
+          <div id="image-preview-container" class="preview-container hidden">
+            <img id="image-preview" src="" alt="Vista previa del inventario">
+            <button id="send-photo-btn" class="action-btn send">🚀 Enviar Imagen a IA</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Status & Result Feedback -->
+      <div id="status-card" class="status-card hidden">
+        <div id="status-spinner" class="spinner"></div>
+        <p id="status-message">Procesando con Agentes de IA...</p>
+      </div>
+
+      <div id="result-card" class="result-card hidden">
+        <div class="result-header">
+          <h3>✅ Conteo Capturado Exitosamente</h3>
+        </div>
+        <div class="result-body">
+          <div class="result-row">
+            <span class="label">Producto:</span>
+            <span id="res-product" class="value">-</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Cantidad:</span>
+            <span id="res-quantity" class="value highlight">-</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Bodega:</span>
+            <span id="res-bodega" class="value">-</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Fuente:</span>
+            <span id="res-fuente" class="value badge">-</span>
+          </div>
+          <div class="result-row">
+            <span class="label">Observaciones:</span>
+            <p id="res-obs" class="value-obs">-</p>
+          </div>
+        </div>
+        <button id="reset-btn" class="action-btn secondary">Hacer Nuevo Conteo</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

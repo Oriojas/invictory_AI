@@ -1,0 +1,25 @@
+[project]
+name = "invictory-ai"
+version = "0.1.0"
+description = "MVP Invictory_AI - Reto de Hotelería Colsubsidio x 30X (IA Multimodal + Telegram MiniApp + FastAPI + React)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "sqlalchemy>=2.0.28",
+    "psycopg2-binary>=2.9.9",
+    "pydantic>=2.6.4",
+    "pydantic-settings>=2.2.1",
+    "openai>=1.14.0",
+    "requests>=2.31.0",
+    "python-multipart>=0.0.9",
+    "python-dotenv>=1.0.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
