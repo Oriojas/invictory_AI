@@ -9,5 +9,10 @@ export default defineConfig({
     host: true,
     port: 5180,
     allowedHosts: true,
+    // Mismo origen en dev: /api se reenvía al backend FastAPI local (evita CORS y unifica con prod).
+    // 127.0.0.1 (no "localhost") para evitar que Node resuelva a IPv6 ::1 y el backend escuche en IPv4.
+    proxy: {
+      "/api": "http://127.0.0.1:8080",
+    },
   },
 });
