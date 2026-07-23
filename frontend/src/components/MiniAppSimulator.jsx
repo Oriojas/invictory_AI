@@ -5,23 +5,38 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [isError, setIsError] = useState(false);
+  const [anomalyAlert, setAnomalyAlert] = useState(null);
+
+  const handleCaptureResponse = (res) => {
+    if (res.ok && res.data) {
+      const data = res.data;
+      // Nueva estructura CaptureResponse: { conteo, anomaly }
+      if (data.anomaly && data.anomaly.is_anomaly) {
+        setAnomalyAlert(data.anomaly);
+        setStatusMsg(`⚠️ ${data.anomaly.message}`);
+        setIsError(true);
+      } else {
+        setAnomalyAlert(null);
+        const conteo = data.conteo || data;
+        setStatusMsg(`✅ Conteo registrado: ${conteo.producto_nombre} → ${conteo.cantidad_contada} (${conteo.fuente})`);
+      }
+    } else {
+      setIsError(true);
+      const detail = res.data?.detail || `HTTP ${res.status}`;
+      setStatusMsg(`⚠️ El backend rechazó la captura: ${detail}`);
+    }
+  };
 
   const simulateAudio = async () => {
     setLoading(true);
     setIsError(false);
+    setAnomalyAlert(null);
     setStatusMsg('🎙️ Procesando audio simulado con OpenAI Whisper & DeepSeek...');
 
     try {
       const dummyBlob = new Blob(["Simulación de audio de voz dictado: 15 cazuelas de 16 onzas en almacén de suministros"], { type: "audio/wav" });
       const res = await captureAudio(dummyBlob, "simulacion_voz.wav");
-
-      if (res.ok) {
-        setStatusMsg('✅ Audio procesado exitosamente y guardado en la BD');
-      } else {
-        setIsError(true);
-        const detail = res.data?.detail || `HTTP ${res.status}`;
-        setStatusMsg(`⚠️ El backend rechazó la captura: ${detail}`);
-      }
+      handleCaptureResponse(res);
     } catch (e) {
       setIsError(true);
       setStatusMsg(`⚠️ Error de conexión con el backend: ${e.message}`);
@@ -36,19 +51,13 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
   const simulateImage = async () => {
     setLoading(true);
     setIsError(false);
+    setAnomalyAlert(null);
     setStatusMsg('📸 Ejecutando OCR en imagen con OpenAI Vision (detail=high)...');
 
     try {
       const dummyBlob = new Blob(["Simulación de imagen OCR: 18 cintas sellamiento"], { type: "image/webp" });
       const res = await captureImage(dummyBlob, "simulacion_ocr.webp");
-
-      if (res.ok) {
-        setStatusMsg('✅ Imagen analizada exitosamente por OCR detail=high');
-      } else {
-        setIsError(true);
-        const detail = res.data?.detail || `HTTP ${res.status}`;
-        setStatusMsg(`⚠️ El backend rechazó el OCR: ${detail}`);
-      }
+      handleCaptureResponse(res);
     } catch (e) {
       setIsError(true);
       setStatusMsg(`⚠️ Error de conexión con el backend: ${e.message}`);
@@ -107,6 +116,50 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
           border: isError ? '1px solid #E30613' : '1px solid #b4d1ff'
         }}>
           {statusMsg}
+        </div>
+      )}
+
+      {/* Alerta de Anomalía en Tiempo Real */}
+      {anomalyAlert && anomalyAlert.is_anomaly && (
+        <div style={{
+          marginTop: '12px',
+          padding: '14px 18px',
+          backgroundColor: anomalyAlert.severity === 'CRITICA' ? '#FDE8E8' : '#FFF3CD',
+          border: `2px solid ${anomalyAlert.severity === 'CRITICA' ? '#E30613' : '#FFC107'}`,
+          borderRadius: '8px',
+          animation: 'pulse 1.5s infinite'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '22px' }}>
+              {anomalyAlert.severity === 'CRITICA' ? '🚨' : anomalyAlert.severity === 'ALTA' ? '⚠️' : 'ℹ️'}
+            </span>
+            <span style={{
+              fontWeight: 900,
+              fontSize: '14px',
+              color: anomalyAlert.severity === 'CRITICA' ? '#E30613' : '#856404',
+              textTransform: 'uppercase'
+            }}>
+              Anomalía {anomalyAlert.severity} — Desviación del {anomalyAlert.deviation_percent}%
+            </span>
+          </div>
+          <p style={{ fontSize: '13px', color: '#111827', lineHeight: '1.5', margin: 0 }}>
+            {anomalyAlert.message}
+          </p>
+          {anomalyAlert.expected_quantity !== null && (
+            <div style={{
+              marginTop: '10px',
+              display: 'flex',
+              gap: '16px',
+              fontSize: '12px',
+              fontFamily: "'Geist', monospace",
+              fontWeight: 700,
+              color: '#414751'
+            }}>
+              <span>📦 Stock ERP: {anomalyAlert.expected_quantity}</span>
+              <span>📊 Desviación: {anomalyAlert.deviation_percent}%</span>
+              <span>🔒 {anomalyAlert.requires_confirmation ? 'Requiere confirmación' : 'Registrado con alerta'}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -4,9 +4,10 @@ from sqlalchemy.orm import Session
 from backend.app.config import settings
 from backend.app.database import get_db
 from backend.app.models import BodegaStock, ConteoFisico
-from backend.app.schemas import ConteoFisicoResponse
+from backend.app.schemas import CaptureResponse, AnomalyAlert, ConteoFisicoResponse
 from backend.app.services.stt_service import process_audio_stt
 from backend.app.services.ocr_service import process_image_ocr
+from backend.app.services.anomaly_detector import detect_anomaly
 
 router = APIRouter(prefix="/api/v1/capture", tags=["Capture & Multimodal AI"])
 
@@ -32,9 +33,7 @@ def _validar_upload(file: UploadFile, contents: bytes, tipos_permitidos: list[st
             status_code=413,
             detail=f"Archivo demasiado grande. El límite máximo es de {settings.MAX_UPLOAD_BYTES // (1024*1024)} MB."
         )
-    # Si content_type está especificado pero no está en la lista de permitidos
     if file.content_type and file.content_type not in tipos_permitidos:
-        # Permitir fallback flexible si la extensión es válida
         ext = (file.filename or "").split(".")[-1].lower()
         valid_exts = [t.split("/")[-1] for t in tipos_permitidos]
         if ext not in valid_exts and ext not in ["mp3", "jpg", "jpeg", "webp", "png", "wav"]:
@@ -43,14 +42,17 @@ def _validar_upload(file: UploadFile, contents: bytes, tipos_permitidos: list[st
                 detail=f"Tipo '{file.content_type}' no soportado. Permitidos: {', '.join(tipos_permitidos)}"
             )
 
-@router.post("/audio", response_model=ConteoFisicoResponse)
+@router.post("/audio", response_model=CaptureResponse)
 def process_audio_capture(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
     """
     Recibe audio enviado desde Telegram MiniApp u operario.
-    Ejecución síncrona en threadpool para no bloquear el event loop.
+    1. Transcribe con OpenAI Whisper.
+    2. Estructura con DeepSeek LLM + catálogo ERP (conciliación semántica).
+    3. Detecta anomalías comparando contra stock histórico ANTES de guardar.
+    4. Guarda conteo en ConteoFisico y retorna alerta si hay anomalía.
     """
     contents = file.file.read()
     _validar_upload(file, contents, settings.ALLOWED_AUDIO_TYPES)
@@ -63,11 +65,10 @@ def process_audio_capture(
     bodega = data.get("bodega", "SIN ASIGNAR")
     obs = data.get("observaciones", res.get("raw_text", ""))
 
-    # Si es un fallback heurístico, la confianza es 0.0 para revisión manual
     is_fallback = data.get("is_fallback", False) or producto_nombre == "SIN IDENTIFICAR"
     confianza = 0.0 if is_fallback else 0.96
 
-    # Intentar emparejar producto en la base de datos por similitud de nombre
+    # Buscar producto en la BD
     stock_item = None
     if producto_nombre != "SIN IDENTIFICAR":
         stock_item = db.query(BodegaStock).filter(
@@ -75,6 +76,13 @@ def process_audio_capture(
         ).first()
 
     sku_id = stock_item.id if stock_item else None
+
+    # DETECCIÓN DE ANOMALÍAS: Comparar contra stock histórico ANTES de guardar
+    anomaly_result = detect_anomaly(db, producto_nombre, cantidad, bodega, sku_id)
+
+    # Si hay anomalía, agregarla a las observaciones del conteo
+    if anomaly_result["is_anomaly"]:
+        obs = f"{anomaly_result['message']} | {obs}"
 
     conteo = ConteoFisico(
         producto_id=sku_id,
@@ -89,17 +97,22 @@ def process_audio_capture(
     db.commit()
     db.refresh(conteo)
 
-    return conteo
+    return CaptureResponse(
+        conteo=ConteoFisicoResponse.model_validate(conteo),
+        anomaly=AnomalyAlert(**anomaly_result)
+    )
 
 
-@router.post("/image", response_model=ConteoFisicoResponse)
+@router.post("/image", response_model=CaptureResponse)
 def process_image_capture(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
     """
     Recibe imagen enviada desde Telegram MiniApp u operario.
-    Ejecución síncrona en threadpool para no bloquear el event loop.
+    1. Ejecuta OCR con OpenAI Vision (detail=high) + catálogo ERP.
+    2. Detecta anomalías comparando contra stock histórico ANTES de guardar.
+    3. Guarda conteo en ConteoFisico y retorna alerta si hay anomalía.
     """
     contents = file.file.read()
     _validar_upload(file, contents, settings.ALLOWED_IMAGE_TYPES)
@@ -123,6 +136,12 @@ def process_image_capture(
 
     sku_id = stock_item.id if stock_item else None
 
+    # DETECCIÓN DE ANOMALÍAS: Comparar contra stock histórico ANTES de guardar
+    anomaly_result = detect_anomaly(db, producto_nombre, cantidad, bodega, sku_id)
+
+    if anomaly_result["is_anomaly"]:
+        obs = f"{anomaly_result['message']} | {obs}"
+
     conteo = ConteoFisico(
         producto_id=sku_id,
         producto_nombre=producto_nombre,
@@ -136,4 +155,7 @@ def process_image_capture(
     db.commit()
     db.refresh(conteo)
 
-    return conteo
+    return CaptureResponse(
+        conteo=ConteoFisicoResponse.model_validate(conteo),
+        anomaly=AnomalyAlert(**anomaly_result)
+    )

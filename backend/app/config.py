@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     ALLOWED_AUDIO_TYPES: List[str] = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/webm", "audio/ogg", "audio/x-m4a", "audio/m4a"]
     ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
+    # Anomaly Detection Settings
+    ANOMALY_THRESHOLD_PERCENT: float = float(os.getenv("ANOMALY_THRESHOLD_PERCENT", "50.0"))
+    ANOMALY_MIN_ABSOLUTE_DIFF: float = float(os.getenv("ANOMALY_MIN_ABSOLUTE_DIFF", "2.0"))
+
     # CORS Origins
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:5180",

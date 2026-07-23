@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         recordText.textContent = "Detener y Procesar";
         recordingIndicator.classList.remove("hidden");
       } catch (err) {
-        alert("No se pudo acceder al micrófono. Verifica los permisos.");
+        showStatus("⚠️ No se pudo acceder al micrófono. Verifica los permisos.", true);
         console.error(err);
       }
     } else {
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function sendAudioToBackend(blob) {
-    showStatus("Analizando voz con OpenAI Whisper & DeepSeek LLM...");
+    showStatus("🎙️ Analizando voz con OpenAI Whisper & DeepSeek LLM...");
     const formData = new FormData();
     formData.append("file", blob, "dictado_operario.mp3");
 
@@ -107,20 +107,16 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Error en la respuesta del backend");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Error HTTP ${response.status}`);
+      }
 
       const data = await response.json();
-      showResult(data);
+      handleCaptureResponse(data);
     } catch (error) {
       console.error(error);
-      alert("Ocurrió un error al enviar el audio. Se mostrará un resultado de demostración.");
-      showResult({
-        producto_nombre: "Cazuela 16 Onz",
-        cantidad_contada: 15.0,
-        bodega: "Stock Almacén Suministros",
-        fuente: "audio",
-        observaciones: "Demo: 15 cazuelas contadas por voz (Descuadre voluntario vs ERP)."
-      });
+      showStatus(`⚠️ Error al procesar audio: ${error.message}`, true);
     }
   }
 
@@ -141,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
   sendPhotoBtn.addEventListener("click", async () => {
     if (!selectedPhotoFile) return;
 
-    showStatus("Procesando imagen con DeepSeek Vision OCR (detail=high)...");
+    showStatus("📸 Procesando imagen con DeepSeek Vision OCR (detail=high)...");
     const formData = new FormData();
     formData.append("file", selectedPhotoFile, selectedPhotoFile.name);
 
@@ -151,28 +147,103 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Error en la respuesta del backend OCR");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Error HTTP ${response.status}`);
+      }
 
       const data = await response.json();
-      showResult(data);
+      handleCaptureResponse(data);
     } catch (error) {
       console.error(error);
-      alert("Ocurrió un error en el OCR. Se mostrará un resultado de demostración.");
-      showResult({
-        producto_nombre: "Cinta Sellamiento 48 mm x 50 mts",
-        cantidad_contada: 18.0,
-        bodega: "Stock Almacén Suministros",
-        fuente: "imagen",
-        observaciones: "Demo OCR high-detail: 18 cintas detectadas (Sobrante vs ERP)."
-      });
+      showStatus(`⚠️ Error al procesar imagen: ${error.message}`, true);
     }
   });
 
+  /**
+   * Maneja la respuesta enriquecida CaptureResponse { conteo, anomaly }
+   * Si hay anomalía, muestra alerta visual antes de mostrar el resultado.
+   */
+  function handleCaptureResponse(data) {
+    const conteo = data.conteo || data;
+    const anomaly = data.anomaly || null;
+
+    // Siempre mostrar el resultado del conteo
+    showResult(conteo);
+
+    // Si hay anomalía, mostrar alerta visual prominente
+    if (anomaly && anomaly.is_anomaly) {
+      showAnomalyAlert(anomaly);
+    } else {
+      hideAnomalyAlert();
+    }
+  }
+
+  function showAnomalyAlert(anomaly) {
+    // Crear o reutilizar el contenedor de alerta
+    let alertDiv = document.getElementById("anomaly-alert");
+    if (!alertDiv) {
+      alertDiv = document.createElement("div");
+      alertDiv.id = "anomaly-alert";
+      resultCard.parentNode.insertBefore(alertDiv, resultCard);
+    }
+
+    const isCritical = anomaly.severity === "CRITICA";
+    const icon = isCritical ? "🚨" : anomaly.severity === "ALTA" ? "⚠️" : "ℹ️";
+    const bgColor = isCritical ? "#FDE8E8" : "#FFF3CD";
+    const borderColor = isCritical ? "#E30613" : "#FFC107";
+    const textColor = isCritical ? "#E30613" : "#856404";
+
+    alertDiv.innerHTML = `
+      <div style="
+        margin: 12px 0;
+        padding: 14px 18px;
+        background-color: ${bgColor};
+        border: 2px solid ${borderColor};
+        border-radius: 10px;
+        animation: pulse 1.5s infinite;
+      ">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span style="font-size: 22px;">${icon}</span>
+          <strong style="color: ${textColor}; font-size: 14px; text-transform: uppercase;">
+            Anomalía ${anomaly.severity} — Desviación del ${anomaly.deviation_percent}%
+          </strong>
+        </div>
+        <p style="font-size: 13px; color: #111827; line-height: 1.5; margin: 0;">
+          ${anomaly.message}
+        </p>
+        ${anomaly.expected_quantity !== null ? `
+          <div style="margin-top: 10px; display: flex; gap: 14px; font-size: 12px; font-weight: 700; color: #414751;">
+            <span>📦 Stock ERP: ${anomaly.expected_quantity}</span>
+            <span>📊 Desviación: ${anomaly.deviation_percent}%</span>
+            <span>🔒 ${anomaly.requires_confirmation ? "Requiere confirmación" : "Registrado con alerta"}</span>
+          </div>
+        ` : ""}
+      </div>
+    `;
+    alertDiv.classList.remove("hidden");
+  }
+
+  function hideAnomalyAlert() {
+    const alertDiv = document.getElementById("anomaly-alert");
+    if (alertDiv) {
+      alertDiv.classList.add("hidden");
+    }
+  }
+
   // Auxiliares de UI
-  function showStatus(msg) {
+  function showStatus(msg, isError = false) {
     statusMessage.textContent = msg;
     statusCard.classList.remove("hidden");
     resultCard.classList.add("hidden");
+    hideAnomalyAlert();
+    if (isError) {
+      statusCard.style.backgroundColor = "#FFDAD6";
+      statusCard.style.borderColor = "#E30613";
+    } else {
+      statusCard.style.backgroundColor = "";
+      statusCard.style.borderColor = "";
+    }
   }
 
   function showResult(data) {
@@ -191,5 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     previewContainer.classList.add("hidden");
     cameraInput.value = "";
     selectedPhotoFile = null;
+    hideAnomalyAlert();
   });
 });

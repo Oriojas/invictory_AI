@@ -1,6 +1,6 @@
 # Invictory_AI - Reto de Hotelería (Hackathon Colsubsidio x 30X)
 
-**Invictory_AI** es una solución MVP de nivel empresarial diseñada para eliminar la captura manual de inventarios en almacenes y bodegas de hotelería mediante agentes de inteligencia artificial multimodal (**OpenAI Whisper** para voz, **OpenAI Vision `detail: high`** para OCR y **DeepSeek LLM `deepseek-chat`** con *Function Calling* sobre PostgreSQL).
+**Invictory_AI** es una solución MVP de nivel empresarial diseñada para eliminar la captura manual de inventarios en almacenes y bodegas de hotelería mediante agentes de inteligencia artificial multimodal (**OpenAI Whisper** para voz, **OpenAI Vision `detail: high`** para OCR, **Detección de Anomalías Pre-Guardado en Tiempo Real** y **DeepSeek LLM `deepseek-chat`** con *Function Calling* sobre PostgreSQL y conciliación semántica).
 
 ---
 
@@ -14,6 +14,7 @@ El módulo `backend/app/services/prompt_loader.py` lee dinámicamente cada archi
 
 ```text
 resources/prompts/
+├── catalog_context.json   # Actor: Catálogo ERP oficial & Reglas de Conciliación Semántica
 ├── stt_prompts.json       # Actor: Operario / Agente Speech-to-Text (Whisper + DeepSeek)
 ├── ocr_prompts.json       # Actor: Agente Vision OCR (OpenAI Vision gpt-4o-mini detail: high)
 ├── agent_prompts.json     # Actor: Agente Inteligente de Inventarios (DeepSeek LLM + DB Tools)
@@ -22,39 +23,50 @@ resources/prompts/
 
 ### 📋 Detalle de Archivos de Prompts
 
-1. **`stt_prompts.json` (Speech-to-Text):**
+1. **`catalog_context.json` (Contexto del Catálogo ERP):**
+   ```json
+   {
+     "actor": "Contexto del Catálogo ERP de Colsubsidio (Inyección en Prompts de IA)",
+     "catalogo_erp": [
+       {"sku": "97503113", "articulo": "Caldero Recort Tapa 50x60 cm", "unidad": "Unidad", "bodega": "Stock Almacén Suministros"},
+       {"sku": "95026919", "articulo": "Cazuela 16 Onz", "unidad": "Unidad", "bodega": "Stock Almacén Suministros"}
+     ],
+     "instrucciones_matching": "Mapea siempre el producto mencionado al artículo más cercano semánticamente..."
+   }
+   ```
+2. **`stt_prompts.json` (Speech-to-Text con Conciliación Semántica y Fracciones):**
    ```json
    {
      "actor": "Operario de Bodega / Agente STT (Speech-to-Text)",
      "structured_extraction": {
-       "system_role": "Eres un agente experto en inventarios de hotelería.",
-       "prompt_template": "Eres un agente experto en inventarios de hotelería. Extrae los datos del siguiente texto dictado por voz..."
+       "system_role": "Eres un agente experto en inventarios de hotelería para Colsubsidio.",
+       "prompt_template": "Extrae los datos dictados por voz, mapea contra el catálogo ERP {catalog} y convierte fracciones (medio kilo = 0.5)..."
      }
    }
    ```
-2. **`ocr_prompts.json` (Vision OCR detail=high):**
+3. **`ocr_prompts.json` (Vision OCR detail=high):**
    ```json
    {
      "actor": "Agente OCR Multimodal (Vision)",
      "vision_ocr": {
        "system_role": "Actúa como un OCR de máxima precisión para inventarios de hotelería.",
-       "prompt_template": "Actúa como un OCR de máxima precisión para inventarios de hotelería. Examina esta imagen, lee el texto visible y la cantidad de insumos..."
+       "prompt_template": "Examina la imagen, mapea contra el catálogo ERP {catalog} y estima fracciones visibles en productos abiertos..."
      }
    }
    ```
-3. **`agent_prompts.json` (Agente DeepSeek LLM sobre PostgreSQL):**
+4. **`agent_prompts.json` (Agente DeepSeek LLM sobre PostgreSQL):**
    ```json
    {
      "actor": "Agente Inteligente de Inventarios (DeepSeek LLM)",
-     "system_instruction": "Eres el Agente Inteligente de Inventarios de Invictory_AI para la Hackathon Colsubsidio x 30X. Tienes acceso a herramientas para consultar PostgreSQL en tiempo real...",
+     "system_instruction": "Eres el Agente Inteligente de Inventarios de Invictory_AI para la Hackathon Colsubsidio x 30X...",
      "tools": {
-       "get_discrepancies_summary": "Obtiene el reporte consolidado de descuadres (faltantes y sobrantes)...",
+       "get_discrepancies_summary": "Obtiene el reporte consolidado de descuadres...",
        "search_product_stock": "Busca un producto o insumo específico en la base de datos...",
        "get_physical_counts_history": "Consulta el historial de capturas físicas de inventario..."
      }
    }
    ```
-4. **`miniapp_prompts.json` (UI Telegram MiniApp):**
+5. **`miniapp_prompts.json` (UI Telegram MiniApp):**
    ```json
    {
      "actor": "Operario Telegram MiniApp UI",
@@ -67,7 +79,7 @@ resources/prompts/
 
 ## 📐 Diagrama de Arquitectura del Sistema (Mermaid)
 
-El siguiente diagrama ilustra el flujo completo de información desde los operarios en la Telegram Mini App y auditores en el Dashboard React hasta el procesamiento multimodal por la IA, la gestión de prompts centralizados y la persistencia en PostgreSQL:
+El siguiente diagrama ilustra el flujo completo de información desde la captura por el operario, la inyección del catálogo ERP para **conciliación semántica**, la **detección de anomalías pre-guardado** en tiempo real, hasta la persistencia en PostgreSQL y la analítica en el Dashboard:
 
 ```mermaid
 graph TD
@@ -83,8 +95,9 @@ graph TD
         D["Foto de Estantería / Empaque<br/>(Cámara del Dispositivo)"]
     end
 
-    %% Recursos Centralizados de Prompts
-    subgraph PromptsResource ["📁 Recurso Centralizado de Prompts (.json)"]
+    %% Recursos Centralizados de Prompts y Catálogo ERP
+    subgraph PromptsResource ["📁 Recursos Centralizados (.json)"]
+        PR0["resources/prompts/catalog_context.json<br/>(12 SKUs Catálogo ERP)"]
         PR1["resources/prompts/stt_prompts.json"]
         PR2["resources/prompts/ocr_prompts.json"]
         PR3["resources/prompts/agent_prompts.json"]
@@ -97,17 +110,21 @@ graph TD
         G["/api/v1/dashboard/discrepancies<br/>(Router Analítica & Descuadres)"]
         H["/api/v1/agent/chat<br/>(Router Agente DeepSeek LLM)"]
 
-        subgraph IAServices ["🤖 Servicios de IA Multimodal & Agente"]
+        subgraph IAServices ["🤖 IA Multimodal & Conciliación Semántica"]
             I["OpenAI Whisper API<br/>(whisper-1 STT)"]
             J["OpenAI Vision API<br/>(gpt-4o-mini detail: high)"]
-            K["Agente DeepSeek LLM<br/>(deepseek-chat + DB Function Calling)"]
+            K["DeepSeek LLM<br/>(Conciliación Semántica + Fracciones)"]
+        end
+
+        subgraph ValidationLayer ["🚨 Capa de Detección de Anomalías"]
+            AD["anomaly_detector.py<br/>(Comparación Pre-Guardado vs ERP)"]
         end
     end
 
     %% Base de Datos PostgreSQL
-    subgraph DB ["🗄️ Base de Datos Relacional (PostgreSQL + Alembic)"]
+    subgraph DB ["🗄️ Base de Datos Relacional (PostgreSQL)"]
         L[("Tabla: BodegaStock<br/>(Stock Teórico ERP - 12 SKUs Colsubsidio)")]
-        M[("Tabla: ConteoFisico<br/>(Capturas Físicas IA)")]
+        M[("Tabla: ConteoFisico<br/>(Capturas Físicas + Alertas)")]
     end
 
     %% Flujos de Conexión
@@ -116,18 +133,27 @@ graph TD
     C -->|POST MP3| E
     D -->|POST WebP| F
 
+    PR0 -.->|Inyecta Catálogo ERP| K
+    PR1 -.->|Carga Prompt STT| K
+    PR2 -.->|Carga Prompt Vision| J
+    PR3 -.->|Carga System Prompt & Tools| H
+
     E -->|Audio Bytes| I
     F -->|Image Base64| J
 
-    PR1 -.->|Carga Prompt| I
-    PR2 -.->|Carga Prompt| J
-    PR3 -.->|Carga System Prompt & Tools| K
-
     I -->|Texto Transcrito| K
-    J -->|Texto OCR & Cantidad| K
+    J -->|OCR + Cantidad| K
 
-    K -->|Consulta SKUs & Graba Conteo| L
-    K -->|Inserta Conteo Físico| M
+    K -->|Resultado Estructurado| AD
+    AD -->|Consulta Stock Teórico| L
+    AD -->|Evalúa % Desviación & Severidad| AD
+
+    AD -->|Persiste Conteo + Alerta| M
+    AD -->|CaptureResponse con AnomalyAlert| E
+    AD -->|CaptureResponse con AnomalyAlert| F
+
+    E -->|Respuesta con Alerta Visual| A
+    F -->|Respuesta con Alerta Visual| A
 
     B -->|Consulta Descuadres en Vivo| G
     B -->|Preguntas en Lenguaje Natural| H
@@ -135,23 +161,20 @@ graph TD
     G -->|Calcula ERP vs Físico| L
     G -->|Calcula ERP vs Físico| M
 
-    H -->|Ejecuta Function Calling sobre BD| K
-    K -->|Consultas SQL Dinámicas| L
-    K -->|Consultas SQL Dinámicas| M
+    H -->|Function Calling| DB
 ```
 
 ---
 
-## ⚡ Características Principales
+## ⚡ Características Principales (Diferenciadores Clave)
 
-1. **Gestión Centralizada de Prompts (`resources/prompts/`):** Prompts en formato `.json` desacoplados del código para fácil personalización por actor.
-2. **Captura por Voz (Speech-to-Text):** Operarios dictan conteos físicos mediante la **Telegram Mini App**, procesados por `whisper-1` de OpenAI y estructurados por **DeepSeek LLM**.
-3. **Captura por Imagen (OCR detail=high):** Lectura e identificación de empaques y etiquetas de insumos procesada por OpenAI Vision (`gpt-4o-mini` con `detail: high`).
-4. **Agente Inteligente DeepSeek con Function Calling (`/api/v1/agent/chat`):** Motor de razonamiento impulsado por `deepseek-chat` que ejecuta consultas dinámicas sobre PostgreSQL para responder preguntas de negocio en tiempo real (*"¿Cuáles son los descuadres en el Restaurante Fuentes AYB?"*).
-5. **Reporte de Descuadres en Tiempo Real:** Dashboard interactivo que calcula y resalta las discrepancias (faltantes y sobrantes) entre el stock del sistema ERP (`BodegaStock`) y lo reportado por la IA (`ConteoFisico`).
-6. **Dataset Real Semilla (12 Productos):** Basado en el archivo oficial `docs/BODEGAS Y STOCK.xlsx`.
-7. **Base de Datos PostgreSQL + Alembic:** Migraciones formales de base de datos con SQLAlchemy y Alembic.
-8. **Frontend React con Corporate Innovation Framework (`docs/DESIGN .md`):** Paleta de colores oficial (`#00427b` Action Blue, `#FDD000` Accent Yellow, `#F8F7F2` Surface Off-White, `#111827` Ink Rich y `#E30613` Alert Red) con tipografía `Manrope` y `Geist`.
+1. **🚨 Detección de Anomalías en Tiempo Real (Pre-Guardado):** Antes de persistir cualquier conteo, el servicio `anomaly_detector.py` compara la cantidad dictada u observada contra el stock teórico registrado en `BodegaStock`. Si la desviación supera el umbral configurado (`ANOMALY_THRESHOLD_PERCENT`), el sistema marca una alerta con severidad (`CRITICA`, `ALTA`, `MEDIA`) y solicita confirmación al operario.
+2. **🧠 Conciliación Semántica Inteligente:** El catálogo ERP oficial de 12 SKUs (`catalog_context.json`) se inyecta dinámicamente en los prompts de IA. El LLM traduce la jerga de bodega (ej: *"ollas grandes"* → `"Caldero Recort Tapa 50x60 cm"`, *"cintas de empaque"* → `"Cinta Sellamiento 48 mm x 50 mts"`) mapeando exactamente a los artículos oficiales del sistema.
+3. **📐 Manejo de Fracciones y Mermas:** El prompt instructivo interpreta fraccionamientos coloquiales (ej: *"medio kilo"*, *"una botella y media"*, *"quedó como un cuarto de bolsa"*) y los convierte a valores numéricos `float` precisos.
+4. **🎙️ Captura Multimodal por Voz (Whisper-1 STT):** Transcripción rápida de dictados mediante OpenAI Whisper y estructuración JSON mediante DeepSeek LLM.
+5. **📸 Captura Multimodal por Imagen (Vision OCR detail=high):** Inspección visual de etiquetas y empaques procesada por OpenAI Vision (`gpt-4o-mini`).
+6. **🤖 Agente Inteligente DeepSeek con Function Calling (`/api/v1/agent/chat`):** Consultas interactivas sobre PostgreSQL en tiempo real con razonamiento en lenguaje natural.
+7. **📊 Dashboard de Analítica de Descuadres:** Interfaz React con Corporate Innovation Framework que permite visualizar métricas KPI en formato Bento Grid, tabla detallada de descuadres y vistas híbridas.
 
 ---
 
@@ -159,13 +182,14 @@ graph TD
 
 ```text
 invictory_AI/
-├── .env.example               # Variables de entorno sanitizadas
+├── .env.example               # Variables de entorno sanitizadas (incluye umbrales de anomalía)
 ├── pyproject.toml             # Gestión de paquetes Python con uv y pytest
 ├── README.md                  # Documentación completa del proyecto con diagrama Mermaid
 ├── alembic.ini                # Configuración de migraciones de base de datos
 ├── alembic/                   # Versiones de migraciones PostgreSQL
 ├── resources/                 # 📁 Prompts Centralizados por Actor (.json)
 │   └── prompts/
+│       ├── catalog_context.json # Catálogo ERP oficial para conciliación semántica
 │       ├── stt_prompts.json
 │       ├── ocr_prompts.json
 │       ├── agent_prompts.json
@@ -185,16 +209,18 @@ invictory_AI/
 │   │   ├── config.py          # Configuración Pydantic Settings
 │   │   ├── database.py        # Conexión directa a PostgreSQL
 │   │   ├── models.py          # Modelos BodegaStock y ConteoFisico
-│   │   ├── schemas.py         # Validadores Pydantic V2
-│   │   ├── services/          # Servicios STT, OCR, Agente DB y Cargador de Prompts
+│   │   ├── schemas.py         # Validadores Pydantic V2 (CaptureResponse, AnomalyAlert)
+│   │   ├── services/          # Servicios STT, OCR, Detector de Anomalías y Prompt Loader
 │   │   │   ├── prompt_loader.py
 │   │   │   ├── stt_service.py
 │   │   │   ├── ocr_service.py
+│   │   │   ├── anomaly_detector.py # 🚨 Servicio de detección de anomalías pre-guardado
 │   │   │   └── inventory_agent.py
 │   │   └── routers/           # Routers /capture, /inventory, /dashboard y /agent
 │   └── tests/                 # Pruebas unitarias y de integración (Pytest)
 │       ├── conftest.py
 │       ├── test_agent.py
+│       ├── test_anomaly_detector.py # 🚨 8 escenarios de pruebas de anomalías
 │       ├── test_inventory_unit.py
 │       ├── test_capture_integration.py
 │       ├── test_inventory_api.py
@@ -202,11 +228,11 @@ invictory_AI/
 ├── miniapp/                   # Telegram Mini App (HTML5 + CSS + JS)
 │   ├── index.html
 │   ├── styles.css
-│   └── app.js
+│   └── app.js                 # 🚨 Renderizado de alertas visuales de anomalía en tiempo real
 └── frontend/                  # Aplicación React + Vite + Vitest
     ├── package.json
     ├── vite.config.js
-    ├── src/                   # Componentes, Páginas y Tokens de Estilo
+    ├── src/                   # Componentes, Páginas y Simulación MiniApp con alertas
     └── src/__tests__/         # Pruebas de componentes React (Vitest)
 ```
 
@@ -252,14 +278,14 @@ La aplicación web React estará disponible en `http://localhost:5180`.
 ## 🧪 Ejecución de Pruebas (Backend y Frontend)
 
 ### Pruebas del Backend (Pytest)
-Ejecuta las pruebas unitarias e integración que prueban los endpoints y el agente DeepSeek usando los archivos de prueba en `files/`:
+Ejecuta las 20 pruebas unitarias e integración que validan endpoints, detector de anomalías (8 escenarios), agente DeepSeek y fixtures multimodales:
 
 ```bash
 uv run pytest -v
 ```
 
 ### Pruebas del Frontend (Vitest)
-Ejecuta las pruebas de componentes y lógica de interfaz en React:
+Ejecuta las 7 pruebas de componentes e interfaz en React:
 
 ```bash
 cd frontend
@@ -270,10 +296,10 @@ npm test
 
 ## 📊 Endpoints Clave
 
+- `POST /api/v1/capture/audio`: Procesa dictado de voz mediante OpenAI Whisper STT + DeepSeek, inyecta catálogo ERP y retorna `CaptureResponse` con `AnomalyAlert`.
+- `POST /api/v1/capture/image`: Procesa fotografía mediante OpenAI Vision OCR (`detail: high`), inyecta catálogo ERP y retorna `CaptureResponse` con `AnomalyAlert`.
 - `POST /api/v1/agent/chat`: Consulta interactiva en lenguaje natural al **Agente DeepSeek LLM** con *Function Calling* sobre PostgreSQL.
 - `GET /api/v1/dashboard/discrepancies`: Obtiene el reporte en vivo de descuadres y porcentaje de precisión.
-- `POST /api/v1/capture/audio`: Procesa dictado de voz mediante OpenAI Whisper STT + DeepSeek.
-- `POST /api/v1/capture/image`: Procesa fotografía de producto mediante OpenAI Vision OCR (`detail: high`).
 - `POST /api/v1/inventory/seed`: Restablece el inventario semilla de 12 productos de prueba de Colsubsidio.
 
 ---

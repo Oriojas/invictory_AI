@@ -6,13 +6,13 @@ from typing import Dict, Any
 from fastapi import HTTPException
 from openai import OpenAI
 from backend.app.config import settings
-from backend.app.services.prompt_loader import load_prompt_resource
+from backend.app.services.prompt_loader import load_prompt_resource, get_catalog_context_text
 
 def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     """
     Transcribe audio usando la API de Whisper (whisper-1) de OpenAI
-    y realiza la estructuración de inventario mediante DeepSeek LLM.
-    Guarda el archivo en el directorio temporal seguro del SO (/tmp).
+    y realiza la estructuración de inventario mediante DeepSeek LLM
+    con inyección del catálogo ERP para conciliación semántica.
     """
     api_key = settings.OPENAI_API_KEY.strip().strip('"').strip("'")
 
@@ -23,7 +23,6 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
         )
 
     transcription_text = ""
-    # Usar el directorio temporal estándar del SO (/tmp)
     temp_dir = tempfile.gettempdir()
     clean_filename = "".join(c for c in filename if c.isalnum() or c in "._-")
     temp_path = os.path.join(temp_dir, f"stt_{clean_filename}")
@@ -53,7 +52,7 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
             except Exception:
                 pass
 
-    # Estructurar resultado con DeepSeek LLM usando prompts centralizados
+    # Estructurar resultado con DeepSeek LLM usando prompts centralizados + catálogo ERP
     structured_data = extract_structured_inventory_from_text(transcription_text)
 
     return {
@@ -65,7 +64,7 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
 def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
     """
     Analiza el texto transcrito con DeepSeek (deepseek-chat) para retornar un JSON estructurado.
-    Carga el prompt centralizado desde resources/prompts/stt_prompts.json.
+    Inyecta el catálogo ERP completo en el prompt para conciliación semántica.
     """
     deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
 
@@ -73,10 +72,11 @@ def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
         return parse_text_heuristically(text, "Sin DEEPSEEK_API_KEY configurada")
 
     try:
-        # Carga dinámica del prompt centralizado
+        # Carga dinámica del prompt centralizado + catálogo ERP
         stt_prompts = load_prompt_resource("stt_prompts.json")["structured_extraction"]
         prompt_template = stt_prompts["prompt_template"]
-        prompt = prompt_template.format(text=text)
+        catalog_text = get_catalog_context_text()
+        prompt = prompt_template.format(text=text, catalog=catalog_text)
 
         url = f"{settings.DEEPSEEK_BASE_URL}/chat/completions"
         headers = {

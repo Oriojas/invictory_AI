@@ -4,12 +4,12 @@ import requests
 from typing import Dict, Any
 from fastapi import HTTPException
 from backend.app.config import settings
-from backend.app.services.prompt_loader import load_prompt_resource
+from backend.app.services.prompt_loader import load_prompt_resource, get_catalog_context_text
 
 def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     """
     Procesa una imagen enviándola a la API de OpenAI Vision (gpt-4o-mini detail: high)
-    cargando los prompts centralizados desde resources/prompts/ocr_prompts.json.
+    con inyección del catálogo ERP para conciliación semántica visual.
     """
     openai_key = settings.OPENAI_API_KEY.strip().strip('"').strip("'")
     deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
@@ -28,9 +28,10 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     elif filename.lower().endswith(".webp"):
         mime_type = "image/webp"
 
-    # Cargar prompt centralizado desde el recurso JSON
+    # Cargar prompt centralizado + catálogo ERP para conciliación semántica
     ocr_prompts = load_prompt_resource("ocr_prompts.json")["vision_ocr"]
-    prompt = ocr_prompts["prompt_template"]
+    catalog_text = get_catalog_context_text()
+    prompt = ocr_prompts["prompt_template"].format(catalog=catalog_text)
 
     if openai_key and openai_key != "tu_openai_api_key_aqui":
         try:
@@ -77,6 +78,7 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
                         "producto_nombre": prod_nombre,
                         "cantidad_contada": cant,
                         "bodega": parsed.get("bodega") or "SIN ASIGNAR",
+                        "unidad_detectada": parsed.get("unidad_detectada") or "Unidad",
                         "observaciones": parsed.get("observaciones") or "Procesado mediante Vision API (detail=high)"
                     }
                 }

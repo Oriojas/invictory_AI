@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -13,8 +13,7 @@ class BodegaStockCreate(BodegaStockBase):
     pass
 
 class BodegaStockResponse(BodegaStockBase):
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ConteoFisicoBase(BaseModel):
     producto_id: Optional[str] = None
@@ -32,8 +31,21 @@ class ConteoFisicoResponse(ConteoFisicoBase):
     id: int
     fecha_conteo: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+class AnomalyAlert(BaseModel):
+    """Alerta de anomalía generada al comparar el conteo con el stock del ERP."""
+    is_anomaly: bool = False
+    severity: str = "NINGUNA"  # 'CRITICA' | 'ALTA' | 'MEDIA' | 'NINGUNA'
+    message: str = ""
+    expected_quantity: Optional[float] = None
+    deviation_percent: float = 0.0
+    requires_confirmation: bool = False
+
+class CaptureResponse(BaseModel):
+    """Respuesta enriquecida de captura con detección de anomalía pre-guardado."""
+    conteo: ConteoFisicoResponse
+    anomaly: AnomalyAlert
 
 class DiscrepancyItem(BaseModel):
     sku: str

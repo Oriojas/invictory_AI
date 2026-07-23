@@ -1,0 +1,19 @@
+{
+  "actor": "Contexto del Catálogo ERP de Colsubsidio (Inyección en Prompts de IA)",
+  "description": "Catálogo oficial de productos del ERP con SKU, nombre exacto, unidad de medida y bodega asignada. Este contexto se inyecta dinámicamente en los prompts de STT y OCR para que el LLM haga conciliación semántica contra nombres reales del sistema.",
+  "catalogo_erp": [
+    {"sku": "97503113", "articulo": "Caldero Recort Tapa 50x60 cm", "unidad": "Unidad", "bodega": "Stock Almacén Suministros"},
+    {"sku": "95026919", "articulo": "Cazuela 16 Onz", "unidad": "Unidad", "bodega": "Stock Almacén Suministros"},
+    {"sku": "95004459", "articulo": "Cinta Sellamiento 48 mm x 50 mts", "unidad": "Unidad", "bodega": "Stock Almacén Suministros"},
+    {"sku": "7290", "articulo": "Aceite Vegetal", "unidad": "Liter", "bodega": "Stock Restaurante Fuentes AYB"},
+    {"sku": "7292", "articulo": "Aceite de Ajonjolí", "unidad": "Liter", "bodega": "Stock Restaurante Fuentes AYB"},
+    {"sku": "7293", "articulo": "Aceite de Oliva", "unidad": "Liter", "bodega": "Stock Restaurante Fuentes AYB"},
+    {"sku": "95026266", "articulo": "Plato Blanco Rectangular", "unidad": "Unidad", "bodega": "Stock Restaurante Fuentes Sumin"},
+    {"sku": "97502964", "articulo": "Balde Plástico 10 Lts", "unidad": "Unidad", "bodega": "Stock Restaurante Fuentes Sumin"},
+    {"sku": "97503242", "articulo": "Abrelatas Mariposa FB", "unidad": "Unidad", "bodega": "Stock Restaurante Fuentes Sumin"},
+    {"sku": "5001", "articulo": "Acelga Fresca", "unidad": "Kilogram", "bodega": "Zoológico (Alimentos)"},
+    {"sku": "5004", "articulo": "Aguacate", "unidad": "Kilogram", "bodega": "Zoológico (Alimentos)"},
+    {"sku": "5005", "articulo": "Ahuyama", "unidad": "Kilogram", "bodega": "Zoológico (Alimentos)"}
+  ],
+  "instrucciones_matching": "Siempre mapea el producto mencionado por el operario al artículo más cercano semánticamente de este catálogo. Usa sinónimos, nombres coloquiales y variaciones regionales. Si el operario dice 'ollas grandes', considera 'Caldero Recort Tapa 50x60 cm'. Si dice 'tablas de picar', busca el artículo que contenga 'tabla' o 'picar'. Si no hay coincidencia clara con ningún artículo del catálogo, devuelve producto_nombre='SIN IDENTIFICAR'."
+}
