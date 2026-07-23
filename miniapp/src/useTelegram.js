@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Envuelve window.Telegram.WebApp (inyectado por telegram-web-app.js).
@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export function useTelegram() {
   const [tg, setTg] = useState(null);
   const [ready, setReady] = useState(false);
+  const backCbRef = useRef(null);
 
   useEffect(() => {
     const wa = window.Telegram?.WebApp;
@@ -25,13 +26,48 @@ export function useTelegram() {
     setReady(true);
   }, []);
 
+  // Muestra el BackButton nativo de Telegram y registra su callback.
+  const showBackButton = useCallback(
+    (cb) => {
+      if (!tg?.BackButton) return;
+      if (backCbRef.current) tg.BackButton.offClick(backCbRef.current);
+      backCbRef.current = cb;
+      tg.BackButton.onClick(cb);
+      tg.BackButton.show();
+    },
+    [tg]
+  );
+
+  const hideBackButton = useCallback(() => {
+    if (!tg?.BackButton) return;
+    if (backCbRef.current) tg.BackButton.offClick(backCbRef.current);
+    backCbRef.current = null;
+    tg.BackButton.hide();
+  }, [tg]);
+
+  const haptic = useCallback(
+    (type = "impact", style = "light") => {
+      const hf = tg?.HapticFeedback;
+      if (!hf) return;
+      if (type === "notification") hf.notificationOccurred?.(style);
+      else hf.impactOccurred?.(style);
+    },
+    [tg]
+  );
+
+  // El script telegram-web-app.js SIEMPRE crea window.Telegram.WebApp (aun fuera de Telegram),
+  // así que !!tg no basta: fuera de Telegram platform es "unknown" e initData es "".
+  const inTelegram = !!tg && tg.platform !== "unknown" && !!tg.initData;
+
   return {
     tg,
-    isTelegram: !!tg, // false = corriendo en navegador normal
+    isTelegram: inTelegram, // false = corriendo en navegador normal
     ready, // el intento de init ya terminó (con o sin Telegram)
     user: tg?.initDataUnsafe?.user ?? null,
     // initData es el string firmado; el backend puede validarlo con el bot token (pendiente de coordinar).
     initData: tg?.initData ?? "",
-    haptic: tg?.HapticFeedback ?? null,
+    showBackButton,
+    hideBackButton,
+    haptic,
   };
 }

@@ -32,7 +32,7 @@ export default function PhotoCapture({ onProcessing, onResult, onError }) {
   }
 
   return (
-    <section className="capture-card">
+    <section className="card capture-card">
       <h2>Capturar foto de productos</h2>
       <p className="description">
         Toma una foto clara de la etiqueta, caja o estantería del insumo. La IA extraerá texto y cantidades.
