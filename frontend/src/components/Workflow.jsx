@@ -1,88 +1,128 @@
 import React from 'react';
-import { IconMobile, IconBrain, IconAlert, IconDashboard } from './Icons.jsx';
+import { IconMobile, IconBrain, IconDashboard } from './Icons.jsx';
 
 export default function Workflow() {
   const steps = [
     {
       num: '01',
-      title: 'Telegram Mini App (Voz & Foto)',
-      icon: <IconMobile size={32} color="#00427b" />,
-      desc: 'El operario dicta un audio de voz o toma una foto del empaque/estantería desde Telegram sin planillas de papel.'
+      title: 'Interacción con la Mini app',
+      icon: <IconMobile size={28} color="#0067b1" />,
+      desc: 'En la mini app el operario podrá interactuar para hacer la carga de información por dictado de voz o captura de foto y la verificación en tiempo real.',
+      image: '/clean_step1.jpg',
+      badge: 'BODEGA Y CAMPO'
     },
     {
       num: '02',
-      title: 'IA Multimodal & Conciliación ERP',
-      icon: <IconBrain size={32} color="#0059A3" />,
-      desc: 'OpenAI Whisper (STT) y DeepSeek Vision (detail=high) extraen datos e inyectan el catálogo ERP para conciliar semánticamente jerga de bodega.'
+      title: 'Validación por IA & Alerta de Anomalías',
+      icon: <IconBrain size={28} color="#0067b1" />,
+      desc: 'La IA traduce expresiones coloquiales al catálogo ERP exacto y audita las cantidades contra el stock histórico. Si detecta descuadres, alerta al instante.',
+      image: '/clean_step2.jpg',
+      badge: 'PROCESAMIENTO EN TIEMPO REAL'
     },
     {
       num: '03',
-      title: 'Detección de Anomalías Pre-Guardado',
-      icon: <IconAlert size={32} color="#E30613" />,
-      desc: 'FastAPI compara la cantidad reportada contra el stock histórico. Si la desviación supera el umbral, genera una alerta y exige confirmación antes de guardar.'
-    },
-    {
-      num: '04',
-      title: 'Dashboard & Agente DeepSeek LLM',
-      icon: <IconDashboard size={32} color="#00427b" />,
-      desc: 'Visualización de descuadres en tiempo real con KPIs Bento Grid y consultas en lenguaje natural mediante Function Calling sobre PostgreSQL.'
+      title: 'Analítica Ejecutiva & Reportes PDF',
+      icon: <IconDashboard size={28} color="#0067b1" />,
+      desc: 'Gerencia y auditores visualizan métricas de precisión en vivo, realizan preguntas al asistente inteligente y exportan informes certificados.',
+      image: '/clean_step3.jpg',
+      badge: 'TOMA DE DECISIONES'
     }
   ];
 
   return (
     <section id="workflow-section" style={{
-      maxWidth: '1200px',
-      margin: '50px auto',
-      padding: '0 20px'
+      maxWidth: '1280px',
+      margin: '60px auto',
+      padding: '0 24px'
     }}>
-      <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-        <h2 style={{ fontSize: '30px', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
-          Flujo de Captura Inteligente & Detección de Anomalías
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
+          Cómo Funciona en 3 Simples Pasos
         </h2>
-        <p style={{ color: '#414751', marginTop: '6px', fontWeight: 500, fontSize: '15px' }}>
-          Del dictado o foto en bodega a la validación semántica, prevención de errores y analítica en tiempo real.
+        <p style={{ color: '#575756', marginTop: '8px', fontWeight: 500, fontSize: '16px', maxWidth: '650px', margin: '8px auto 0 auto' }}>
+          Del dictado o fotografía en la bodega a la validación automática, prevención de mermas y auditoría ejecutiva.
         </p>
       </div>
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '20px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '24px'
       }}>
         {steps.map((step) => (
-          <div key={step.num} className="corporate-card" style={{ position: 'relative', backgroundColor: '#FFFFFF' }}>
-            <div style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              backgroundColor: '#0059a3',
-              color: '#FFFFFF',
-              fontWeight: 800,
-              padding: '3px 8px',
-              borderRadius: '4px',
-              fontSize: '11px',
-              fontFamily: "'Geist', monospace"
-            }}>
-              PASO {step.num}
+          <div key={step.num} className="corporate-card" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '24px',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '12px',
+            border: '1px solid #c1c6d3',
+            position: 'relative'
+          }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '10px',
+                  backgroundColor: '#f0f6fa',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {step.icon}
+                </div>
+                <span style={{
+                  backgroundColor: '#0067b1', // Azul Colsubsidio
+                  color: '#FFFFFF',
+                  fontWeight: 900,
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  fontSize: '11px'
+                }}>
+                  PASO {step.num}
+                </span>
+              </div>
+
+              <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '10px', color: '#0067b1' }}>
+                {step.title}
+              </h3>
+              <p style={{ fontSize: '14px', color: '#575756', lineHeight: 1.6, marginBottom: '16px' }}>
+                {step.desc}
+              </p>
             </div>
 
+            {/* Contenedor Limpio Unificado sin Caja ni Borde Gris */}
             <div style={{
-              width: '54px',
-              height: '54px',
-              borderRadius: '12px',
-              backgroundColor: '#f1f3ff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginBottom: '16px'
+              marginTop: '14px',
+              padding: '6px 0'
             }}>
-              {step.icon}
+              <img
+                src={step.image}
+                alt={step.title}
+                style={{
+                  height: '84px',
+                  width: 'auto',
+                  maxWidth: '100%',
+                  objectFit: 'contain',
+                  display: 'block',
+                  mixBlendMode: 'multiply'
+                }}
+              />
             </div>
-            <h3 style={{ fontSize: '17px', fontWeight: 800, marginBottom: '8px', color: '#00427b' }}>{step.title}</h3>
-            <p style={{ fontSize: '13px', color: '#414751', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
+
           </div>
         ))}
       </div>
     </section>
   );
 }
+
+
+
+
+

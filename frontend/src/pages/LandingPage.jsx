@@ -1,59 +1,132 @@
 import React from 'react';
 import Hero from '../components/Hero.jsx';
 import Workflow from '../components/Workflow.jsx';
+import Footer from '../components/Footer.jsx';
 
 export default function LandingPage({ onGoToDashboard }) {
+  const metrics = [
+    { value: '80%', label: 'Ahorro de Tiempo', desc: 'Reducción drástica en tiempos de toma de inventario físico' },
+    { value: '100%', label: 'Precisión Digital', desc: 'Eliminación completa de errores de tipeo y hojas de papel' },
+    { value: '0%', label: 'Mermas No Explicadas', desc: 'Alertas preventivas de descuadres antes de guardar' },
+    { value: '< 1 seg', label: 'Respuesta Inmediata', desc: 'Auditoría en tiempo real en cada conteo' }
+  ];
+
+  const enterpriseFeatures = [
+    {
+      title: '🔒 Seguridad & Privacidad Enterprise',
+      desc: 'Encriptación de extremo a extremo, control de acceso basado en roles y cumplimiento estricto con normativas de protección de datos.'
+    },
+    {
+      title: '🔄 Integración Transparente con ERPs',
+      desc: 'Conexión lista con SAP, Oracle, Microsoft Dynamics y bases de datos corporativas a través de APIs REST seguras.'
+    },
+    {
+      title: '📱 Operatividad Móvil & Respaldo Offline',
+      desc: 'Funciona en cualquier dispositivo móvil (iOS, Android, Tablets corporativas) con generación de reportes certificados en PDF.'
+    }
+  ];
+
   return (
-    <div style={{ paddingBottom: '80px', backgroundColor: '#F8F7F2', minHeight: '100vh' }}>
-      <Hero onGoToDashboard={onGoToDashboard} />
-      <Workflow />
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F8F7F2' }}>
+      <main style={{ flex: 1, paddingBottom: '60px' }}>
+        {/* 1. Hero Principal con Animación Minimalista estilo Trazo */}
+        <Hero onGoToDashboard={onGoToDashboard} />
 
-      {/* Sección Opciones de Diseño Stitch (docs/DESIGN .md) */}
-      <section style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#111827', letterSpacing: '-0.5px' }}>
-            Enfoques de Diseño Stitch (StitchMCP)
-          </h2>
-          <p style={{ color: '#414751', fontWeight: 500, fontSize: '16px', marginTop: '6px' }}>
-            Tres conceptos de experiencia visual integrados según el Corporate Innovation Framework.
-          </p>
-        </div>
+        {/* 2. Franja de Métricas de Impacto Comercial (Social Proof & ROI) en Azul Colsubsidio */}
+        <section style={{
+          maxWidth: '1280px',
+          margin: '40px auto',
+          padding: '0 24px'
+        }}>
+          <div style={{
+            backgroundColor: '#0067b1', // Azul Colsubsidio Pantone 2196 C
+            borderRadius: '16px',
+            padding: '40px 32px',
+            color: '#FFFFFF',
+            boxShadow: '0 12px 32px rgba(0, 103, 177, 0.2)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '32px',
+            textAlign: 'center'
+          }}>
+            {metrics.map((m, idx) => (
+              <div key={idx} style={{ borderRight: idx < metrics.length - 1 ? '1px solid rgba(255,255,255,0.18)' : 'none', padding: '0 12px' }}>
+                <div style={{ fontSize: '40px', fontWeight: 900, color: '#ffd000', marginBottom: '4px' }}>
+                  {m.value}
+                </div>
+                <div style={{ fontSize: '16px', fontWeight: 800, marginBottom: '6px' }}>
+                  {m.label}
+                </div>
+                <div style={{ fontSize: '13px', color: '#f0f6fa', lineHeight: 1.4 }}>
+                  {m.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-          <div className="corporate-card">
-            <h3 style={{ color: '#00427b', fontSize: '18px', fontWeight: 800, marginBottom: '10px' }}>
-              🚀 Innovación Tecnológica
-            </h3>
-            <p style={{ fontSize: '14px', color: '#414751', lineHeight: 1.6 }}>
-              Enfocado en mostrar la arquitectura multimodal: OpenAI Whisper para voz y DeepSeek Vision (detail: high) para OCR.
+        {/* 3. Flujo en 3 Simples Pasos (Con Interacción con la Mini app) */}
+        <Workflow />
+
+        {/* 4. Sección de Garantía Enterprise & Confianza Corporativa */}
+        <section style={{ maxWidth: '1280px', margin: '60px auto 40px auto', padding: '0 24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
+              Diseñado para la Escala y Exigencia Corporativa
+            </h2>
+            <p style={{ color: '#575756', fontWeight: 500, fontSize: '16px', marginTop: '8px' }}>
+              Infraestructura sólida, segura y compatible con los estándares de grandes cadenas de consumo y hotelería.
             </p>
           </div>
 
-          <div className="corporate-card">
-            <h3 style={{ color: '#00427b', fontSize: '18px', fontWeight: 800, marginBottom: '10px' }}>
-              ⚡ Eficiencia Operativa
-            </h3>
-            <p style={{ fontSize: '14px', color: '#414751', lineHeight: 1.6 }}>
-              Diseñado para operarios de bodega hoteleros. Reducción drástica del uso de hojas de papel y disminución del 80% del tiempo de toma.
-            </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+            {enterpriseFeatures.map((f, i) => (
+              <div key={i} className="corporate-card" style={{ padding: '28px', backgroundColor: '#FFFFFF', borderRadius: '12px' }}>
+                <h3 style={{ color: '#0067b1', fontSize: '18px', fontWeight: 800, marginBottom: '12px' }}>
+                  {f.title}
+                </h3>
+                <p style={{ fontSize: '14px', color: '#575756', lineHeight: 1.6 }}>
+                  {f.desc}
+                </p>
+              </div>
+            ))}
           </div>
 
-          <div className="corporate-card">
-            <h3 style={{ color: '#00427b', fontSize: '18px', fontWeight: 800, marginBottom: '10px' }}>
-              📊 Resultados y ROI
+          {/* CTA Comercial Final */}
+          <div style={{
+            textAlign: 'center',
+            marginTop: '56px',
+            backgroundColor: '#FFFFFF',
+            padding: '48px 32px',
+            borderRadius: '16px',
+            border: '1px solid #c1c6d3',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.04)'
+          }}>
+            <h3 style={{ fontSize: '28px', fontWeight: 900, color: '#111827', marginBottom: '12px' }}>
+              ¿Listo para transformar el control de tus almacenes?
             </h3>
-            <p style={{ fontSize: '14px', color: '#414751', lineHeight: 1.6 }}>
-              Orientado a auditores y directores de hotelería para ver descuadres en tiempo real y evitar fugas de inventario.
+            <p style={{ fontSize: '16px', color: '#575756', marginBottom: '28px', maxWidth: '600px', margin: '0 auto 28px auto' }}>
+              Explora la demostración interactiva con datos reales y comprueba la precisión de la detección de anomalías en tiempo real.
             </p>
+            <button
+              onClick={onGoToDashboard}
+              className="corporate-btn"
+              style={{
+                backgroundColor: '#0067b1',
+                padding: '18px 40px',
+                fontSize: '16px'
+              }}
+            >
+              🔥 Abrir Demo Interactivo de Inventario
+            </button>
           </div>
-        </div>
+        </section>
+      </main>
 
-        <div style={{ textAlign: 'center', marginTop: '48px' }}>
-          <button onClick={onGoToDashboard} className="corporate-btn" style={{ padding: '18px 36px', fontSize: '16px' }}>
-            🔥 Abrir Dashboard MVP con Datos Reales de Colsubsidio
-          </button>
-        </div>
-      </section>
+      {/* Footer Corporativo con Logos de Colsubsidio y 30X */}
+      <Footer />
     </div>
   );
 }
+
+
