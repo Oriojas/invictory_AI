@@ -2,6 +2,7 @@ import React from 'react';
 import Hero from '../components/Hero.jsx';
 import Workflow from '../components/Workflow.jsx';
 import Footer from '../components/Footer.jsx';
+import { IconDownload, IconFileText } from '../components/Icons.jsx';
 
 export default function LandingPage({ onGoToDashboard }) {
   const metrics = [
@@ -21,9 +22,10 @@ export default function LandingPage({ onGoToDashboard }) {
       desc: 'Conexión lista con SAP, Oracle, Microsoft Dynamics y bases de datos corporativas a través de APIs REST seguras.'
     },
     {
-      title: '📱 Operatividad Móvil & Respaldo Offline',
-      desc: 'Funciona en cualquier dispositivo móvil (iOS, Android, Tablets corporativas) con generación de reportes certificados en PDF.'
+      title: '📱 Operatividad Móvil & Cola Diferida (Offline Queue)',
+      desc: 'Funciona en dispositivos móviles (iOS, Android, Tablets). En áreas sin señal, los audios y fotos se guardan en cola local y se procesan automáticamente al recuperar cobertura.'
     }
+
   ];
 
   return (
@@ -92,7 +94,7 @@ export default function LandingPage({ onGoToDashboard }) {
             ))}
           </div>
 
-          {/* CTA Comercial Final */}
+          {/* CTA Comercial Final con Botón de Descarga del Manual de Adopción */}
           <div style={{
             textAlign: 'center',
             marginTop: '56px',
@@ -105,20 +107,47 @@ export default function LandingPage({ onGoToDashboard }) {
             <h3 style={{ fontSize: '28px', fontWeight: 900, color: '#111827', marginBottom: '12px' }}>
               ¿Listo para transformar el control de tus almacenes?
             </h3>
-            <p style={{ fontSize: '16px', color: '#575756', marginBottom: '28px', maxWidth: '600px', margin: '0 auto 28px auto' }}>
-              Explora la demostración interactiva con datos reales y comprueba la precisión de la detección de anomalías en tiempo real.
+            <p style={{ fontSize: '16px', color: '#575756', marginBottom: '28px', maxWidth: '640px', margin: '0 auto 28px auto' }}>
+              Explora la demostración interactiva con datos reales o descarga la guía operativa completa para equipos en campo.
             </p>
-            <button
-              onClick={onGoToDashboard}
-              className="corporate-btn"
-              style={{
-                backgroundColor: '#0067b1',
-                padding: '18px 40px',
-                fontSize: '16px'
-              }}
-            >
-              🔥 Abrir Demo Interactivo de Inventario
-            </button>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={onGoToDashboard}
+                className="corporate-btn"
+                style={{
+                  backgroundColor: '#0067b1',
+                  padding: '18px 36px',
+                  fontSize: '15px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+              >
+                🔥 Abrir Demo Interactivo
+              </button>
+
+              <a
+                href="/Manual_Operativo_Adopcion_Colsubsidio.pdf"
+                download="Manual_Operativo_Adopcion_Colsubsidio.pdf"
+                className="corporate-btn corporate-btn-yellow"
+                style={{
+                  backgroundColor: '#ffd000',
+                  color: '#111827',
+                  padding: '18px 32px',
+                  fontSize: '15px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  textDecoration: 'none'
+                }}
+              >
+                <IconDownload size={20} color="#111827" />
+                Descargar Manual de Adopción (PDF)
+              </a>
+
+
+            </div>
           </div>
         </section>
       </main>
@@ -128,5 +157,6 @@ export default function LandingPage({ onGoToDashboard }) {
     </div>
   );
 }
+
 
 
