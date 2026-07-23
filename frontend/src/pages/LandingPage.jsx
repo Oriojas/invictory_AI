@@ -34,7 +34,7 @@ export default function LandingPage({ onGoToDashboard }) {
               ⚡ Eficiencia Operativa
             </h3>
             <p style={{ fontSize: '14px', color: '#414751', lineHeight: 1.6 }}>
-              Diseñado para operarios de bodega hoteleros. Cero uso de hojas de papel y reducción del 80% del tiempo de toma.
+              Diseñado para operarios de bodega hoteleros. Reducción drástica del uso de hojas de papel y disminución del 80% del tiempo de toma.
             </p>
           </div>
 

@@ -161,6 +161,7 @@ export default function DashboardPage() {
                   items={summary?.items_descuadrados}
                   filterStatus={filterStatus}
                   setFilterStatus={setFilterStatus}
+                  summary={summary}
                 />
               </>
             )}

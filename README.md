@@ -175,6 +175,7 @@ graph TD
 5. **📸 Captura Multimodal por Imagen (Vision OCR detail=high):** Inspección visual de etiquetas y empaques procesada por OpenAI Vision (`gpt-4o-mini`).
 6. **🤖 Agente Inteligente DeepSeek con Function Calling (`/api/v1/agent/chat`):** Consultas interactivas sobre PostgreSQL en tiempo real con razonamiento en lenguaje natural.
 7. **📊 Dashboard de Analítica de Descuadres:** Interfaz React con Corporate Innovation Framework que permite visualizar métricas KPI en formato Bento Grid, tabla detallada de descuadres y vistas híbridas.
+8. **📄 Reporte Digital PDF Certificado y Respaldo de Auditoría:** Generador de reportes PDF en cliente (`pdfExporter.js` con `jspdf` + `jspdf-autotable`) estructurado según el Corporate Innovation Framework (`docs/DESIGN .md`). Permite exportar informes oficiales en modo Eco-Friendly para firmas de supervisores, auditorías formales y respaldo documental en contingencias de baja conectividad, promoviendo una drástica reducción del uso de papel.
 
 ---
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { IconMobile, IconAlert, IconBrain, IconRuler, IconDashboard, IconZap } from './Icons.jsx';
+import { IconMobile, IconAlert, IconBrain, IconRuler, IconDashboard, IconZap, IconList } from './Icons.jsx';
 
 export default function Hero({ onGoToDashboard }) {
   const differentiators = [
     {
       icon: <IconMobile size={28} color="#00427b" />,
-      badge: 'CERO PAPEL',
+      badge: 'REDUCCIÓN DE PAPEL',
       title: 'Captura Natural (Voz & Foto)',
       desc: 'Telegram Mini App para operarios con OpenAI Whisper STT y DeepSeek Vision OCR detail: high desde tabletas corporativas.'
     },
@@ -26,6 +26,12 @@ export default function Hero({ onGoToDashboard }) {
       badge: 'SOPORTE DE MERMAS',
       title: 'Manejo de Fracciones',
       desc: 'Interpretación de productos abiertos y porciones ("medio kilo", "botella a la mitad", 0.5/0.25) convertidos a float.'
+    },
+    {
+      icon: <IconList size={28} color="#00427b" />,
+      badge: 'RESPALDO OFFLINE',
+      title: 'Reporte Digital PDF Certificado',
+      desc: 'Exportación instantánea de reportes en PDF corporativo para auditorías formales, firmas de supervisores y contingencias sin señal.'
     },
     {
       icon: <IconDashboard size={28} color="#00427b" />,
@@ -80,7 +86,7 @@ export default function Hero({ onGoToDashboard }) {
           display: 'inline-block',
           marginTop: '8px'
         }}>
-          IA Multimodal · Anomalías Pre-Guardado · Conciliación ERP
+          IA Multimodal · Anomalías Pre-Guardado · Reducción de Papel
         </span>
       </h1>
 
@@ -93,31 +99,32 @@ export default function Hero({ onGoToDashboard }) {
         lineHeight: 1.6,
         fontWeight: 500
       }}>
-        Eliminamos la captura manual en planillas de papel. Operarios en bodega dictan voz o toman fotos en la <strong>Telegram Mini App</strong>; nuestro backend FastAPI valida el stock histórico en tiempo real, <strong>alerta antes de guardar anomalías</strong> y concilia semánticamente cualquier término contra el catálogo ERP de Colsubsidio.
+        Reducimos drásticamente la dependencia de planillas físicas de papel. Operarios en bodega dictan voz o toman fotos en la <strong>Telegram Mini App</strong>; nuestro backend FastAPI valida el stock histórico en tiempo real, <strong>alerta antes de guardar anomalías</strong> y genera <strong>reportes digitales PDF certificados</strong> para auditorías formales y contingencias de baja conectividad.
       </p>
 
-      {/* Grid de Diferenciadores Clave para Ganar */}
+      {/* Grid Simétrico de Diferenciadores (3x2 en Desktop) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-        gap: '16px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '20px',
         marginBottom: '36px',
         textAlign: 'left'
       }}>
         {differentiators.map((d, i) => (
           <div key={i} className="corporate-card" style={{
-            padding: '18px',
+            padding: '22px',
             backgroundColor: '#FFFFFF',
             border: '1px solid #c1c6d3',
             borderRadius: '10px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            boxShadow: '0 2px 6px rgba(0, 66, 123, 0.04)'
           }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div style={{
-                  padding: '8px',
+                  padding: '10px',
                   backgroundColor: '#f1f3ff',
                   borderRadius: '8px',
                   display: 'flex',
@@ -127,11 +134,11 @@ export default function Hero({ onGoToDashboard }) {
                   {d.icon}
                 </div>
                 <span style={{
-                  fontSize: '9px',
+                  fontSize: '10px',
                   fontWeight: 900,
                   backgroundColor: '#00427b',
                   color: '#FFFFFF',
-                  padding: '3px 8px',
+                  padding: '4px 10px',
                   borderRadius: '4px',
                   fontFamily: "'Geist', monospace",
                   textTransform: 'uppercase'
@@ -139,10 +146,10 @@ export default function Hero({ onGoToDashboard }) {
                   {d.badge}
                 </span>
               </div>
-              <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#00427b', marginBottom: '6px' }}>
+              <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#00427b', marginBottom: '8px' }}>
                 {d.title}
               </h4>
-              <p style={{ fontSize: '12px', color: '#414751', lineHeight: '1.45', margin: 0 }}>
+              <p style={{ fontSize: '13px', color: '#414751', lineHeight: '1.5', margin: 0 }}>
                 {d.desc}
               </p>
             </div>
