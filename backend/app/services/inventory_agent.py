@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from backend.app.config import settings
 from backend.app.models import BodegaStock, ConteoFisico
 from backend.app.routers.dashboard import get_dashboard_discrepancies
+from backend.app.services.prompt_loader import load_prompt_resource
 
 def query_database_tools(db: Session, tool_name: str, arguments: Dict[str, Any]) -> Any:
     """
@@ -57,12 +58,11 @@ def query_database_tools(db: Session, tool_name: str, arguments: Dict[str, Any])
 def process_agent_chat_query(db: Session, user_query: str) -> Dict[str, Any]:
     """
     Procesa una consulta en lenguaje natural utilizando DeepSeek LLM (deepseek-chat)
-    con capacidad de Function Calling sobre la base de datos PostgreSQL.
+    cargando prompts centralizados desde resources/prompts/agent_prompts.json.
     """
     deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
 
     if not deepseek_key or deepseek_key == "tu_deepseek_api_key_aqui":
-        # Respuesta Heurística Inteligente de respaldo si no hay API key
         return fallback_agent_reasoning(db, user_query)
 
     url = f"{settings.DEEPSEEK_BASE_URL}/chat/completions"
@@ -71,13 +71,17 @@ def process_agent_chat_query(db: Session, user_query: str) -> Dict[str, Any]:
         "Content-Type": "application/json"
     }
 
-    # Herramientas disponibles para el Agente DeepSeek sobre PostgreSQL
+    # Carga dinámica de prompts y descripciones de herramientas desde resources/prompts/agent_prompts.json
+    agent_config = load_prompt_resource("agent_prompts.json")
+    system_instruction = agent_config["system_instruction"]
+    tool_desc = agent_config["tools"]
+
     tools = [
         {
             "type": "function",
             "function": {
                 "name": "get_discrepancies_summary",
-                "description": "Obtiene el reporte consolidado de descuadres (faltantes y sobrantes) entre el ERP y los conteos de IA en PostgreSQL.",
+                "description": tool_desc["get_discrepancies_summary"],
                 "parameters": {"type": "object", "properties": {}, "required": []}
             }
         },
@@ -85,7 +89,7 @@ def process_agent_chat_query(db: Session, user_query: str) -> Dict[str, Any]:
             "type": "function",
             "function": {
                 "name": "search_product_stock",
-                "description": "Busca un producto o insumo específico en la base de datos de stock del ERP por SKU o nombre.",
+                "description": tool_desc["search_product_stock"],
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -99,7 +103,7 @@ def process_agent_chat_query(db: Session, user_query: str) -> Dict[str, Any]:
             "type": "function",
             "function": {
                 "name": "get_physical_counts_history",
-                "description": "Consulta el historial de capturas físicas de inventario (voz o foto OCR) registradas en PostgreSQL.",
+                "description": tool_desc["get_physical_counts_history"],
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -114,11 +118,7 @@ def process_agent_chat_query(db: Session, user_query: str) -> Dict[str, Any]:
     messages = [
         {
             "role": "system",
-            "content": (
-                "Eres el Agente Inteligente de Inventarios de Invictory_AI para la Hackathon Colsubsidio x 30X. "
-                "Tienes acceso a herramientas para consultar PostgreSQL en tiempo real. "
-                "Responde de forma concisa, profesional y con datos exactos sobre descuadres, bodegas e insumos."
-            )
+            "content": system_instruction
         },
         {"role": "user", "content": user_query}
     ]
@@ -138,16 +138,13 @@ def process_agent_chat_query(db: Session, user_query: str) -> Dict[str, Any]:
         res_data = resp.json()
         choice = res_data["choices"][0]["message"]
 
-        # Si el modelo decidió llamar a una herramienta de BD
         if choice.get("tool_calls"):
             tool_call = choice["tool_calls"][0]
             func_name = tool_call["function"]["name"]
             func_args = json.loads(tool_call["function"]["arguments"] or "{}")
 
-            # Ejecutar la herramienta en PostgreSQL
             tool_result = query_database_tools(db, func_name, func_args)
 
-            # Enviar el resultado de vuelta a DeepSeek para formular la respuesta final
             messages.append(choice)
             messages.append({
                 "role": "tool",

@@ -6,6 +6,7 @@ from typing import Dict, Any
 from fastapi import HTTPException
 from openai import OpenAI
 from backend.app.config import settings
+from backend.app.services.prompt_loader import load_prompt_resource
 
 def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     """
@@ -52,7 +53,7 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
             except Exception:
                 pass
 
-    # Estructurar resultado con DeepSeek LLM
+    # Estructurar resultado con DeepSeek LLM usando prompts centralizados
     structured_data = extract_structured_inventory_from_text(transcription_text)
 
     return {
@@ -64,6 +65,7 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
 def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
     """
     Analiza el texto transcrito con DeepSeek (deepseek-chat) para retornar un JSON estructurado.
+    Carga el prompt centralizado desde resources/prompts/stt_prompts.json.
     """
     deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
 
@@ -71,20 +73,16 @@ def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
         return parse_text_heuristically(text, "Procesado mediante Whisper STT (Sin DEEPSEEK_API_KEY configurada)")
 
     try:
+        # Carga dinámica del prompt centralizado
+        stt_prompts = load_prompt_resource("stt_prompts.json")["structured_extraction"]
+        prompt_template = stt_prompts["prompt_template"]
+        prompt = prompt_template.format(text=text)
+
         url = f"{settings.DEEPSEEK_BASE_URL}/chat/completions"
         headers = {
             "Authorization": f"Bearer {deepseek_key}",
             "Content-Type": "application/json"
         }
-        prompt = (
-            "Eres un agente experto en inventarios de hotelería. "
-            "Extrae los datos del siguiente texto dictado por voz y responde ÚNICAMENTE un JSON válido con las claves:\n"
-            "- producto_nombre (string: nombre exacto del insumo)\n"
-            "- cantidad_contada (float/number)\n"
-            "- bodega (string)\n"
-            "- observaciones (string)\n\n"
-            f"TEXTO DICTADO:\n{text}"
-        )
         payload = {
             "model": "deepseek-chat",
             "messages": [{"role": "user", "content": prompt}],

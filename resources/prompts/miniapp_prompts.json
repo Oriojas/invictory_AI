@@ -1,0 +1,12 @@
+{
+  "actor": "Operario Telegram MiniApp UI",
+  "description": "Textos y guías de interacción para los operarios de bodega al capturar audio o fotos en la Telegram Mini App",
+  "dictado_voz": {
+    "guia_usuario": "Presiona grabar y dicta el conteo. Ejemplo: '15 cazuelas de 16 onzas en almacén de suministros'.",
+    "placeholder_grabacion": "Escuchando dictado de voz..."
+  },
+  "captura_foto": {
+    "guia_usuario": "Toma una foto clara a la etiqueta, caja o estantería del insumo.",
+    "placeholder_analisis": "Analizando foto con OCR de alta precisión (detail: high)..."
+  }
+}

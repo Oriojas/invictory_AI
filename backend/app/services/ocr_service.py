@@ -4,11 +4,12 @@ import requests
 from typing import Dict, Any
 from fastapi import HTTPException
 from backend.app.config import settings
+from backend.app.services.prompt_loader import load_prompt_resource
 
 def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     """
-    Procesa una imagen para OCR de alta precisión ('detail: high')
-    utilizando la API Vision Multimodal de OpenAI (gpt-4o-mini) / DeepSeek.
+    Procesa una imagen enviándola a la API de OpenAI Vision (gpt-4o-mini detail: high)
+    cargando los prompts centralizados desde resources/prompts/ocr_prompts.json.
     """
     openai_key = settings.OPENAI_API_KEY.strip().strip('"').strip("'")
     deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
@@ -21,22 +22,15 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
 
     b64_img = base64.b64encode(file_bytes).decode("utf-8")
     
-    # Determinar extensión MIME
     mime_type = "image/jpeg"
     if filename.lower().endswith(".png"):
         mime_type = "image/png"
     elif filename.lower().endswith(".webp"):
         mime_type = "image/webp"
 
-    prompt = (
-        "Actúa como un OCR de máxima precisión para inventarios de hotelería. "
-        "Examina esta imagen, lee el texto visible y la cantidad de insumos. "
-        "Devuelve ÚNICAMENTE un objeto JSON válido con las claves:\n"
-        "- producto_nombre (string: nombre exacto del insumo)\n"
-        "- cantidad_contada (float: cantidad visible de unidades/litros/kilos)\n"
-        "- bodega (string: ubicación o bodega identificada)\n"
-        "- observaciones (string: detalles visuales de empaque/estado)"
-    )
+    # Cargar prompt centralizado desde el recurso JSON
+    ocr_prompts = load_prompt_resource("ocr_prompts.json")["vision_ocr"]
+    prompt = ocr_prompts["prompt_template"]
 
     # 1. Intentar con OpenAI Vision (gpt-4o-mini) con detail: high
     if openai_key and openai_key != "tu_openai_api_key_aqui":
@@ -57,7 +51,7 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
                                 "type": "image_url",
                                 "image_url": {
                                     "url": f"data:{mime_type};base64,{b64_img}",
-                                    "detail": "high" # Requerido por docs/ocr.md
+                                    "detail": "high"  # Requerido por docs/ocr.md
                                 }
                             }
                         ]
@@ -82,7 +76,6 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
         except Exception as e:
             print(f"Error procesando Vision con OpenAI: {e}")
 
-    # Fallback si no se pudo procesar
     raise HTTPException(
         status_code=502,
         detail="No se pudo procesar el OCR de la imagen. Verifica la validez de tus API Keys en el archivo .env."

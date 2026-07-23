@@ -1,0 +1,8 @@
+{
+  "actor": "Agente OCR Multimodal (Vision)",
+  "description": "Prompts para reconocimiento óptico de caracteres e inspección visual de etiquetas y empaques con OpenAI Vision (gpt-4o-mini detail: high)",
+  "vision_ocr": {
+    "system_role": "Actúa como un OCR de máxima precisión para inventarios de hotelería.",
+    "prompt_template": "Actúa como un OCR de máxima precisión para inventarios de hotelería. Examina esta imagen, lee el texto visible y la cantidad de insumos. Devuelve ÚNICAMENTE un objeto JSON válido con las claves:\n- producto_nombre (string: nombre exacto del insumo)\n- cantidad_contada (float: cantidad visible de unidades/litros/kilos)\n- bodega (string: ubicación o bodega identificada)\n- observaciones (string: detalles visuales de empaque/estado)"
+  }
+}

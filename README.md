@@ -4,9 +4,70 @@
 
 ---
 
+## 📁 Gestión Centralizada de Prompts por Actor (`resources/prompts/`)
+
+Para garantizar mantenibilidad, evolución continua y separar la lógica del software de las instrucciones de Inteligencia Artificial, **todos los prompts del proyecto están centralizados en archivos JSON** dentro de la carpeta `resources/prompts/`.
+
+### 🎯 Arquitectura de Carga de Prompts
+
+El módulo `backend/app/services/prompt_loader.py` lee dinámicamente cada archivo JSON en tiempo de ejecución. Esto permite que desarrolladores, prompt engineers y administradores editen las instrucciones de cualquier actor del sistema sin necesidad de modificar el código fuente Python ni recompilar la aplicación.
+
+```text
+resources/prompts/
+├── stt_prompts.json       # Actor: Operario / Agente Speech-to-Text (Whisper + DeepSeek)
+├── ocr_prompts.json       # Actor: Agente Vision OCR (OpenAI Vision gpt-4o-mini detail: high)
+├── agent_prompts.json     # Actor: Agente Inteligente de Inventarios (DeepSeek LLM + DB Tools)
+└── miniapp_prompts.json   # Actor: UI Operario Telegram MiniApp
+```
+
+### 📋 Detalle de Archivos de Prompts
+
+1. **`stt_prompts.json` (Speech-to-Text):**
+   ```json
+   {
+     "actor": "Operario de Bodega / Agente STT (Speech-to-Text)",
+     "structured_extraction": {
+       "system_role": "Eres un agente experto en inventarios de hotelería.",
+       "prompt_template": "Eres un agente experto en inventarios de hotelería. Extrae los datos del siguiente texto dictado por voz..."
+     }
+   }
+   ```
+2. **`ocr_prompts.json` (Vision OCR detail=high):**
+   ```json
+   {
+     "actor": "Agente OCR Multimodal (Vision)",
+     "vision_ocr": {
+       "system_role": "Actúa como un OCR de máxima precisión para inventarios de hotelería.",
+       "prompt_template": "Actúa como un OCR de máxima precisión para inventarios de hotelería. Examina esta imagen, lee el texto visible y la cantidad de insumos..."
+     }
+   }
+   ```
+3. **`agent_prompts.json` (Agente DeepSeek LLM sobre PostgreSQL):**
+   ```json
+   {
+     "actor": "Agente Inteligente de Inventarios (DeepSeek LLM)",
+     "system_instruction": "Eres el Agente Inteligente de Inventarios de Invictory_AI para la Hackathon Colsubsidio x 30X. Tienes acceso a herramientas para consultar PostgreSQL en tiempo real...",
+     "tools": {
+       "get_discrepancies_summary": "Obtiene el reporte consolidado de descuadres (faltantes y sobrantes)...",
+       "search_product_stock": "Busca un producto o insumo específico en la base de datos...",
+       "get_physical_counts_history": "Consulta el historial de capturas físicas de inventario..."
+     }
+   }
+   ```
+4. **`miniapp_prompts.json` (UI Telegram MiniApp):**
+   ```json
+   {
+     "actor": "Operario Telegram MiniApp UI",
+     "dictado_voz": { "guia_usuario": "Presiona grabar y dicta el conteo..." },
+     "captura_foto": { "guia_usuario": "Toma una foto clara a la etiqueta, caja o estantería..." }
+   }
+   ```
+
+---
+
 ## 📐 Diagrama de Arquitectura del Sistema (Mermaid)
 
-El siguiente diagrama ilustra el flujo completo de información desde los operarios en la Telegram Mini App y auditores en el Dashboard React hasta el procesamiento multimodal por la IA y la persistencia en PostgreSQL:
+El siguiente diagrama ilustra el flujo completo de información desde los operarios en la Telegram Mini App y auditores en el Dashboard React hasta el procesamiento multimodal por la IA, la gestión de prompts centralizados y la persistencia en PostgreSQL:
 
 ```mermaid
 graph TD
@@ -20,6 +81,13 @@ graph TD
     subgraph Captura ["⚡ Captura Multimodal"]
         C["Dictado por Voz<br/>(MediaRecorder API)"]
         D["Foto de Estantería / Empaque<br/>(Cámara del Dispositivo)"]
+    end
+
+    %% Recursos Centralizados de Prompts
+    subgraph PromptsResource ["📁 Recurso Centralizado de Prompts (.json)"]
+        PR1["resources/prompts/stt_prompts.json"]
+        PR2["resources/prompts/ocr_prompts.json"]
+        PR3["resources/prompts/agent_prompts.json"]
     end
 
     %% Backend FastAPI Service Layer
@@ -51,6 +119,10 @@ graph TD
     E -->|Audio Bytes| I
     F -->|Image Base64| J
 
+    PR1 -.->|Carga Prompt| I
+    PR2 -.->|Carga Prompt| J
+    PR3 -.->|Carga System Prompt & Tools| K
+
     I -->|Texto Transcrito| K
     J -->|Texto OCR & Cantidad| K
 
@@ -72,13 +144,14 @@ graph TD
 
 ## ⚡ Características Principales
 
-1. **Captura por Voz (Speech-to-Text):** Operarios dictan conteos físicos mediante la **Telegram Mini App**, procesados por `whisper-1` de OpenAI y estructurados por **DeepSeek LLM**.
-2. **Captura por Imagen (OCR detail=high):** Lectura e identificación de empaques y etiquetas de insumos procesada por OpenAI Vision (`gpt-4o-mini` con `detail: high`).
-3. **Agente Inteligente DeepSeek con Function Calling (`/api/v1/agent/chat`):** Motor de razonamiento impulsado por `deepseek-chat` que ejecuta consultas dinámicas sobre PostgreSQL para responder preguntas de negocio en tiempo real (*"¿Cuáles son los descuadres en el Restaurante Fuentes AYB?"*).
-4. **Reporte de Descuadres en Tiempo Real:** Dashboard interactivo que calcula y resalta las discrepancias (faltantes y sobrantes) entre el stock del sistema ERP (`BodegaStock`) y lo reportado por la IA (`ConteoFisico`).
-5. **Dataset Real Semilla (12 Productos):** Basado en el archivo oficial `docs/BODEGAS Y STOCK.xlsx`.
-6. **Base de Datos PostgreSQL + Alembic:** Migraciones formales de base de datos con SQLAlchemy y Alembic.
-7. **Frontend React con Corporate Innovation Framework (`docs/DESIGN .md`):** Paleta de colores oficial (`#00427b` Action Blue, `#FDD000` Accent Yellow, `#F8F7F2` Surface Off-White, `#111827` Ink Rich y `#E30613` Alert Red) con tipografía `Manrope` y `Geist`.
+1. **Gestión Centralizada de Prompts (`resources/prompts/`):** Prompts en formato `.json` desacoplados del código para fácil personalización por actor.
+2. **Captura por Voz (Speech-to-Text):** Operarios dictan conteos físicos mediante la **Telegram Mini App**, procesados por `whisper-1` de OpenAI y estructurados por **DeepSeek LLM**.
+3. **Captura por Imagen (OCR detail=high):** Lectura e identificación de empaques y etiquetas de insumos procesada por OpenAI Vision (`gpt-4o-mini` con `detail: high`).
+4. **Agente Inteligente DeepSeek con Function Calling (`/api/v1/agent/chat`):** Motor de razonamiento impulsado por `deepseek-chat` que ejecuta consultas dinámicas sobre PostgreSQL para responder preguntas de negocio en tiempo real (*"¿Cuáles son los descuadres en el Restaurante Fuentes AYB?"*).
+5. **Reporte de Descuadres en Tiempo Real:** Dashboard interactivo que calcula y resalta las discrepancias (faltantes y sobrantes) entre el stock del sistema ERP (`BodegaStock`) y lo reportado por la IA (`ConteoFisico`).
+6. **Dataset Real Semilla (12 Productos):** Basado en el archivo oficial `docs/BODEGAS Y STOCK.xlsx`.
+7. **Base de Datos PostgreSQL + Alembic:** Migraciones formales de base de datos con SQLAlchemy y Alembic.
+8. **Frontend React con Corporate Innovation Framework (`docs/DESIGN .md`):** Paleta de colores oficial (`#00427b` Action Blue, `#FDD000` Accent Yellow, `#F8F7F2` Surface Off-White, `#111827` Ink Rich y `#E30613` Alert Red) con tipografía `Manrope` y `Geist`.
 
 ---
 
@@ -91,6 +164,12 @@ invictory_AI/
 ├── README.md                  # Documentación completa del proyecto con diagrama Mermaid
 ├── alembic.ini                # Configuración de migraciones de base de datos
 ├── alembic/                   # Versiones de migraciones PostgreSQL
+├── resources/                 # 📁 Prompts Centralizados por Actor (.json)
+│   └── prompts/
+│       ├── stt_prompts.json
+│       ├── ocr_prompts.json
+│       ├── agent_prompts.json
+│       └── miniapp_prompts.json
 ├── docs/                      # Guías técnicas del reto y datos oficiales
 │   ├── DESIGN .md             # Corporate Innovation Framework (Sistema de Diseño)
 │   ├── colores.md
@@ -107,7 +186,8 @@ invictory_AI/
 │   │   ├── database.py        # Conexión directa a PostgreSQL
 │   │   ├── models.py          # Modelos BodegaStock y ConteoFisico
 │   │   ├── schemas.py         # Validadores Pydantic V2
-│   │   ├── services/          # Servicios STT (Whisper), OCR (Vision) y Agente DB (DeepSeek)
+│   │   ├── services/          # Servicios STT, OCR, Agente DB y Cargador de Prompts
+│   │   │   ├── prompt_loader.py
 │   │   │   ├── stt_service.py
 │   │   │   ├── ocr_service.py
 │   │   │   └── inventory_agent.py
@@ -172,7 +252,7 @@ La aplicación web React estará disponible en `http://localhost:5180`.
 ## 🧪 Ejecución de Pruebas (Backend y Frontend)
 
 ### Pruebas del Backend (Pytest)
-Ejecuta las pruebas unitarias e integración que prueban los endpoints y el agente DeepSeek usando los archivos de prueba en `files/` (`Record (online-voice-recorder.com).mp3` y `aceite_vegetal.webp`):
+Ejecuta las pruebas unitarias e integración que prueban los endpoints y el agente DeepSeek usando los archivos de prueba en `files/`:
 
 ```bash
 uv run pytest -v
