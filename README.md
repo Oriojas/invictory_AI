@@ -239,40 +239,142 @@ invictory_AI/
 
 ---
 
-## 🚀 Guía de Ejecución
+## 🛠️ Guía Paso a Paso para Instalación y Despliegue Local
 
-### 1. Configuración de Variables de Entorno
-Copia el archivo `.env.example` a `.env` y configura tus API Keys:
-```bash
-cp .env.example .env
-```
+Esta guía está diseñada para que cualquier persona, incluso con conocimientos básicos de desarrollo, pueda instalar, configurar y ejecutar la solución en un entorno local desde cero.
 
-### 2. Migraciones de Base de Datos (PostgreSQL)
-Ejecuta las migraciones de base de datos con Alembic:
-```bash
-uv run alembic upgrade head
-```
+---
 
-### 3. Backend (FastAPI + `uv`)
-Iniciar servidor FastAPI en el puerto `8080`:
+### 📋 Prerrequisitos Básicos
+
+Antes de comenzar, asegúrate de tener instalado en tu equipo:
+1. **Python** (versión 3.10 o superior): [Descargar Python](https://www.python.org/downloads/)
+2. **Node.js** (versión 18 o superior) y **npm**: [Descargar Node.js](https://nodejs.org/)
+3. **Git**: Para clonar el repositorio.
+4. *(Opcional pero muy recomendado)* **uv**: Gestor de paquetes ultrarrápido para Python. Se instala ejecutando:
+   ```bash
+   pip install uv
+   ```
+
+---
+
+### 🚀 Paso 1: Clonar el Repositorio y Configurar Variables de Entorno
+
+1. Abre una terminal y clona el proyecto en tu máquina local:
+   ```bash
+   git clone <URL_DEL_REPOSITORIO>
+   cd invictory_AI
+   ```
+
+2. Crea tu archivo de variables de entorno `.env` a partir de la plantilla genérica `.env.example`:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Abre el archivo `.env` en tu editor de código (ej. VS Code) y completa tus credenciales:
+   - **Base de Datos (`DATABASE_URL`)**: Por defecto utiliza SQLite (`sqlite:///./invictory.db`), lo cual no requiere instalar ningun servidor de base de datos adicional. Si deseas utilizar PostgreSQL, edita la cadena utilizando nombres genéricos como se muestra en la plantilla:
+     ```env
+     DATABASE_URL=postgresql://tu_usuario:tu_contrasena@localhost:5432/nombre_base_datos
+     ```
+   - **Llaves de API de Inteligencia Artificial**:
+     - `OPENAI_API_KEY`: Requerida para la transcripción de voz (Whisper) y la visión por computadora (Vision OCR).
+     - `DEEPSEEK_API_KEY`: Requerida para el modelo de lenguaje de conciliación semántica y el agente de inventarios.
+
+---
+
+### 🐍 Paso 2: Instalación de Dependencias del Backend (Python + FastAPI)
+
+Tienes dos métodos para crear e instalar las dependencias del entorno backend:
+
+#### Opción A (Recomendada con `uv`):
+Sincroniza e instala automáticamente todas las dependencias del proyecto en un entorno virtual aislado:
 ```bash
-# Sincronizar e instalar dependencias Python
 uv sync
-
-# Iniciar servidor FastAPI
-uv run uvicorn backend.app.main:app --reload --port 8080
 ```
-El servidor estará disponible en `http://localhost:8080` y la documentación interactiva en `http://localhost:8080/docs`.
 
-### 4. Frontend (React + Vite)
-En una nueva terminal, navega a `frontend/` y ejecuta en el puerto `5180`:
+#### Opción B (Tradicional con `pip` y `venv`):
+1. Crea un entorno virtual de Python:
+   ```bash
+   python -m venv .venv
+   ```
+2. Activa el entorno virtual:
+   - **En Linux / macOS:**
+     ```bash
+     source .venv/bin/activate
+     ```
+   - **En Windows (PowerShell):**
+     ```powershell
+     .\.venv\Scripts\Activate.ps1
+     ```
+3. Instala el proyecto y sus dependencias:
+   ```bash
+   pip install -e .
+   ```
+
+---
+
+### 🗄️ Paso 3: Configuración y Migración de la Base de Datos
+
+El sistema necesita crear la estructura de tablas (`bodega_stock` y `conteo_fisico`) en la base de datos antes de funcionar.
+
+1. **Crear la Base de Datos**:
+   - **Si usas SQLite (Por defecto):** No necesitas hacer nada previo, el archivo `invictory.db` se creará automáticamente en la raíz.
+   - **Si usas PostgreSQL local o en Docker:** Asegúrate de tener el servidor PostgreSQL activo y haber creado la base de datos vacía configurada en tu `DATABASE_URL` (ej. `nombre_base_datos`). Por ejemplo, en Docker:
+     ```bash
+     docker run --name postgres_invictory -e POSTGRES_USER=tu_usuario -e POSTGRES_PASSWORD=tu_contrasena -e POSTGRES_DB=nombre_base_datos -p 5432:5432 -d postgres
+     ```
+
+2. **Ejecutar las Migraciones (Alembic)**:
+   Alembic aplicará los scripts de migración para generar la estructura completa de tablas en tu base de datos:
+   ```bash
+   # Si usas uv:
+   uv run alembic upgrade head
+
+   # Si usas venv tradicional:
+   alembic upgrade head
+   ```
+
+3. **Poblado Inicial de Datos (Seed)**:
+   El proyecto cuenta con un catálogo semilla oficial de 12 SKUs de Colsubsidio. Este catálogo se poblará automáticamente en la base de datos la primera vez que inicies el backend o puedes forzar su carga mediante el endpoint `/api/v1/inventory/seed`.
+
+---
+
+### ⚡ Paso 4: Iniciar el Servidor Backend (FastAPI)
+
+Con el entorno configurado y las migraciones ejecutadas, inicia el servidor en el puerto `8080`:
 
 ```bash
-cd frontend
-npm install
-npm run dev -- --port 5180
+# Con uv:
+uv run uvicorn backend.app.main:app --reload --port 8080
+
+# O con venv activo:
+uvicorn backend.app.main:app --reload --port 8080
 ```
-La aplicación web React estará disponible en `http://localhost:5180`.
+
+- **Verificación:** Abre tu navegador e ingresa a `http://localhost:8080/docs`. Verás la documentación interactiva de la API (Swagger UI).
+
+---
+
+### 💻 Paso 5: Instalación y Ejecución del Frontend (React + Vite)
+
+En una **nueva ventana o pestaña de terminal**, navega a la carpeta `frontend/` e instala las dependencias de Node.js:
+
+1. Ingresa a la carpeta del frontend:
+   ```bash
+   cd frontend
+   ```
+
+2. Instala los paquetes de Node.js:
+   ```bash
+   npm install
+   ```
+
+3. Inicia el servidor de desarrollo en el puerto `5180`:
+   ```bash
+   npm run dev -- --port 5180
+   ```
+
+4. **Verificación:** Abre tu navegador e ingresa a `http://localhost:5180`. Verás el Dashboard de Analítica de Inventario funcionando y conectado con el backend.
 
 ---
 
