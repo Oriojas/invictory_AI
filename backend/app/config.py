@@ -1,5 +1,5 @@
 import os
-from typing import List, Union
+from typing import List
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
 
@@ -23,11 +23,19 @@ class Settings(BaseSettings):
 
     # CORS Origins
     BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:5180",
         "http://localhost:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5180",
         "https://web.telegram.org"
     ]
+
+    @field_validator("OPENAI_API_KEY", "DEEPSEEK_API_KEY", mode="before")
+    @classmethod
+    def clean_api_keys(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip().strip('"').strip("'")
+        return v
 
     class Config:
         case_sensitive = True

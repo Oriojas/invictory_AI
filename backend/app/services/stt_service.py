@@ -1,5 +1,6 @@
 import os
 import json
+import tempfile
 import requests
 from typing import Dict, Any
 from fastapi import HTTPException
@@ -10,18 +11,21 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     """
     Transcribe audio usando la API de Whisper (whisper-1) de OpenAI
     y realiza la estructuración de inventario mediante DeepSeek LLM.
-    Manejo transparente de errores sin fallbacks silenciosos.
+    Guarda el archivo en el directorio temporal seguro del SO (/tmp).
     """
-    api_key = settings.OPENAI_API_KEY
+    api_key = settings.OPENAI_API_KEY.strip().strip('"').strip("'")
 
     if not api_key or api_key == "tu_openai_api_key_aqui":
         raise HTTPException(
             status_code=400,
-            detail="OPENAI_API_KEY no está configurada en el archivo .env. Por favor especifica tu API Key de OpenAI para usar Speech-to-Text (whisper-1)."
+            detail="OPENAI_API_KEY no está configurada en el archivo .env. Por favor ingresa tu API Key de OpenAI para usar Speech-to-Text (whisper-1)."
         )
 
     transcription_text = ""
-    temp_path = f"/tmp_{filename}"
+    # Usar el directorio temporal estándar del SO (/tmp)
+    temp_dir = tempfile.gettempdir()
+    clean_filename = "".join(c for c in filename if c.isalnum() or c in "._-")
+    temp_path = os.path.join(temp_dir, f"stt_{clean_filename}")
 
     try:
         client = OpenAI(api_key=api_key)
@@ -43,7 +47,10 @@ def process_audio_stt(file_bytes: bytes, filename: str) -> Dict[str, Any]:
         )
     finally:
         if os.path.exists(temp_path):
-            os.remove(temp_path)
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
 
     # Estructurar resultado con DeepSeek LLM
     structured_data = extract_structured_inventory_from_text(transcription_text)
@@ -58,10 +65,9 @@ def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
     """
     Analiza el texto transcrito con DeepSeek (deepseek-chat) para retornar un JSON estructurado.
     """
-    deepseek_key = settings.DEEPSEEK_API_KEY
+    deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
 
     if not deepseek_key or deepseek_key == "tu_deepseek_api_key_aqui":
-        # Si no hay DeepSeek Key, parsear por coincidencia básica pero informando el estado
         return parse_text_heuristically(text, "Procesado mediante Whisper STT (Sin DEEPSEEK_API_KEY configurada)")
 
     try:
