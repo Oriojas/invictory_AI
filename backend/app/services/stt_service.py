@@ -70,7 +70,7 @@ def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
     deepseek_key = settings.DEEPSEEK_API_KEY.strip().strip('"').strip("'")
 
     if not deepseek_key or deepseek_key == "tu_deepseek_api_key_aqui":
-        return parse_text_heuristically(text, "Procesado mediante Whisper STT (Sin DEEPSEEK_API_KEY configurada)")
+        return parse_text_heuristically(text, "Sin DEEPSEEK_API_KEY configurada")
 
     try:
         # Carga dinámica del prompt centralizado
@@ -110,23 +110,26 @@ def extract_structured_inventory_from_text(text: str) -> Dict[str, Any]:
 
 
 def parse_text_heuristically(text: str, default_obs: str) -> Dict[str, Any]:
+    """
+    Sin DEEPSEEK_API_KEY no se puede estructurar de forma confiable.
+    Devolvemos el texto con confianza 0 y libre de datos inventados.
+    """
     text_lower = text.lower()
-    product_name = "Cazuela 16 Onz"
-    quantity = 15.0
-    bodega = "Stock Almacén Suministros"
+    product_name = "SIN IDENTIFICAR"
+    quantity = 0.0
+    bodega = "SIN ASIGNAR"
 
     if "balde" in text_lower:
         product_name = "Balde Plástico 10 Lts"
-        quantity = 5.0
-        bodega = "Stock Restaurante Fuentes Sumin"
     elif "aceite" in text_lower:
         product_name = "Aceite Vegetal"
-        quantity = 800.0
-        bodega = "Stock Restaurante Fuentes AYB"
+    elif "cazuela" in text_lower:
+        product_name = "Cazuela 16 Onz"
 
     return {
         "producto_nombre": product_name,
         "cantidad_contada": quantity,
         "bodega": bodega,
-        "observaciones": f"{default_obs}. Transcripción original: '{text}'"
+        "is_fallback": True,
+        "observaciones": f"[REQUIERE REVISIÓN MANUAL] {default_obs}. Transcripción: '{text}'"
     }

@@ -34,9 +34,6 @@ yarn-error.log*
 
 # Archivos Temporales de Grabación / Cargas
 *.webm
-*.mp3
-*.wav
-*.ogg
 /tmp_*
 
 # IDEs & Sistema Operativo
@@ -47,9 +44,8 @@ Thumbs.db
 *.swp
 *.swo
 
-# Documentos Binarios de Referencia (Conservar estructura en docs/)
+# Documentos Binarios de Referencia & Fixtures de Test (Conservar en repo)
 !docs/BODEGAS Y STOCK.xlsx
 !docs/Cómo usar los recursos del reto Hotelería.docx
-
-# test file
-files
+!files/
+!files/*

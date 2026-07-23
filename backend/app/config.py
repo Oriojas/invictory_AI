@@ -1,7 +1,7 @@
 import os
 from typing import List
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
+from pydantic import field_validator, ConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Invictory_AI API"
@@ -15,11 +15,17 @@ class Settings(BaseSettings):
         "DATABASE_URL",
         "sqlite:///./invictory.db"
     )
+    FALLBACK_DATABASE_URL: str = "sqlite:///./invictory.db"
 
     # AI API Keys
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
     DEEPSEEK_BASE_URL: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+
+    # Upload Validation Settings
+    MAX_UPLOAD_BYTES: int = 10 * 1024 * 1024  # 10 MB
+    ALLOWED_AUDIO_TYPES: List[str] = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/webm", "audio/ogg", "audio/x-m4a", "audio/m4a"]
+    ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
     # CORS Origins
     BACKEND_CORS_ORIGINS: List[str] = [
@@ -37,10 +43,11 @@ class Settings(BaseSettings):
             return v.strip().strip('"').strip("'")
         return v
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    model_config = ConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
 settings = Settings()

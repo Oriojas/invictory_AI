@@ -32,7 +32,6 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     ocr_prompts = load_prompt_resource("ocr_prompts.json")["vision_ocr"]
     prompt = ocr_prompts["prompt_template"]
 
-    # 1. Intentar con OpenAI Vision (gpt-4o-mini) con detail: high
     if openai_key and openai_key != "tu_openai_api_key_aqui":
         try:
             url = "https://api.openai.com/v1/chat/completions"
@@ -51,7 +50,7 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
                                 "type": "image_url",
                                 "image_url": {
                                     "url": f"data:{mime_type};base64,{b64_img}",
-                                    "detail": "high"  # Requerido por docs/ocr.md
+                                    "detail": "high"
                                 }
                             }
                         ]
@@ -64,13 +63,21 @@ def process_image_ocr(file_bytes: bytes, filename: str) -> Dict[str, Any]:
                 result = resp.json()
                 content = result["choices"][0]["message"]["content"]
                 parsed = json.loads(content)
+                
+                prod_nombre = parsed.get("producto_nombre") or "SIN IDENTIFICAR"
+                cant = 0.0
+                try:
+                    cant = float(parsed.get("cantidad_contada", 0.0))
+                except (ValueError, TypeError):
+                    cant = 0.0
+
                 return {
                     "raw_text": f"OCR Vision completado para {filename}",
                     "structured": {
-                        "producto_nombre": parsed.get("producto_nombre", "Aceite Vegetal"),
-                        "cantidad_contada": float(parsed.get("cantidad_contada", 18.0)),
-                        "bodega": parsed.get("bodega", "Stock Almacén Suministros"),
-                        "observaciones": parsed.get("observaciones", "Procesado mediante Vision API (detail=high)")
+                        "producto_nombre": prod_nombre,
+                        "cantidad_contada": cant,
+                        "bodega": parsed.get("bodega") or "SIN ASIGNAR",
+                        "observaciones": parsed.get("observaciones") or "Procesado mediante Vision API (detail=high)"
                     }
                 }
         except Exception as e:

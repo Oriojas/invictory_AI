@@ -1,6 +1,23 @@
 import pytest
 from backend.app.models import BodegaStock, ConteoFisico
 from backend.app.schemas import BodegaStockResponse, DiscrepancyItem, DashboardSummaryResponse
+from backend.app.routers.capture import _parse_cantidad
+from backend.app.services.stt_service import parse_text_heuristically
+
+def test_parse_cantidad_tolera_variaciones_del_llm():
+    assert _parse_cantidad(15) == 15.0
+    assert _parse_cantidad("15") == 15.0
+    assert _parse_cantidad("15.5") == 15.5
+    assert _parse_cantidad("15,5 unidades") == 15.5
+    assert _parse_cantidad("quince") == 0.0
+    assert _parse_cantidad(None) == 0.0
+
+def test_parse_text_heuristically_no_inventa_datos():
+    res = parse_text_heuristically("Texto de prueba no reconocido", "Prueba sin API Key")
+    assert res["producto_nombre"] == "SIN IDENTIFICAR"
+    assert res["cantidad_contada"] == 0.0
+    assert res["is_fallback"] is True
+    assert "[REQUIERE REVISIÓN MANUAL]" in res["observaciones"]
 
 def test_bodega_stock_model_creation():
     stock = BodegaStock(

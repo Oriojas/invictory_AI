@@ -1,68 +1,62 @@
 import React, { useState } from 'react';
+import { captureAudio, captureImage } from '../services/api.js';
 
 export default function MiniAppSimulator({ onCaptureSuccess }) {
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
-
-  const API_BASE = 'http://localhost:8080';
+  const [isError, setIsError] = useState(false);
 
   const simulateAudio = async () => {
     setLoading(true);
-    setStatusMsg('🎙️ Procesando audio simulado ("15 cazuelas en almacén de suministros") con OpenAI Whisper & DeepSeek...');
+    setIsError(false);
+    setStatusMsg('🎙️ Procesando audio simulado con OpenAI Whisper & DeepSeek...');
 
     try {
-      const formData = new FormData();
-      const dummyBlob = new Blob(["audio dummy stream"], { type: "audio/mp3" });
-      formData.append("file", dummyBlob, "simulacion_voz.mp3");
-
-      const res = await fetch(`${API_BASE}/api/v1/capture/audio`, {
-        method: 'POST',
-        body: formData
-      });
+      const dummyBlob = new Blob(["Simulación de audio de voz dictado: 15 cazuelas de 16 onzas en almacén de suministros"], { type: "audio/wav" });
+      const res = await captureAudio(dummyBlob, "simulacion_voz.wav");
 
       if (res.ok) {
-        setStatusMsg('✅ Audio procesado y guardado en la BD');
+        setStatusMsg('✅ Audio procesado exitosamente y guardado en la BD');
       } else {
-        setStatusMsg('ℹ️ Modo Demo: Conteo de voz registrado');
+        setIsError(true);
+        const detail = res.data?.detail || `HTTP ${res.status}`;
+        setStatusMsg(`⚠️ El backend rechazó la captura: ${detail}`);
       }
     } catch (e) {
-      setStatusMsg('ℹ️ Simulación de voz ejecutada (FastAPI Demo)');
+      setIsError(true);
+      setStatusMsg(`⚠️ Error de conexión con el backend: ${e.message}`);
     } finally {
       setLoading(false);
       setTimeout(() => {
-        setStatusMsg('');
         onCaptureSuccess();
-      }, 1200);
+      }, 1500);
     }
   };
 
   const simulateImage = async () => {
     setLoading(true);
-    setStatusMsg('📸 Ejecutando OCR en imagen con DeepSeek Vision (detail=high)...');
+    setIsError(false);
+    setStatusMsg('📸 Ejecutando OCR en imagen con OpenAI Vision (detail=high)...');
 
     try {
-      const formData = new FormData();
-      const dummyBlob = new Blob(["image dummy bytes"], { type: "image/jpeg" });
-      formData.append("file", dummyBlob, "simulacion_ocr.jpg");
-
-      const res = await fetch(`${API_BASE}/api/v1/capture/image`, {
-        method: 'POST',
-        body: formData
-      });
+      const dummyBlob = new Blob(["Simulación de imagen OCR: 18 cintas sellamiento"], { type: "image/webp" });
+      const res = await captureImage(dummyBlob, "simulacion_ocr.webp");
 
       if (res.ok) {
-        setStatusMsg('✅ Imagen analizada por OCR detail=high');
+        setStatusMsg('✅ Imagen analizada exitosamente por OCR detail=high');
       } else {
-        setStatusMsg('ℹ️ Modo Demo: Conteo OCR de imagen registrado');
+        setIsError(true);
+        const detail = res.data?.detail || `HTTP ${res.status}`;
+        setStatusMsg(`⚠️ El backend rechazó el OCR: ${detail}`);
       }
     } catch (e) {
-      setStatusMsg('ℹ️ Simulación de OCR ejecutada (FastAPI Demo)');
+      setIsError(true);
+      setStatusMsg(`⚠️ Error de conexión con el backend: ${e.message}`);
     } finally {
       setLoading(false);
       setTimeout(() => {
-        setStatusMsg('');
         onCaptureSuccess();
-      }, 1200);
+      }, 1500);
     }
   };
 
@@ -77,7 +71,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
             ⚡ Simulación de Captura (Telegram MiniApp)
           </h3>
           <p style={{ fontSize: '13px', color: '#414751', marginTop: '2px' }}>
-            Simula entradas por voz u OCR para ver cómo se actualiza el reporte de descuadres.
+            Simula entradas por voz u OCR para ver cómo se actualiza el reporte de descuadres en tiempo real.
           </p>
         </div>
 
@@ -105,12 +99,12 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
         <div style={{
           marginTop: '16px',
           padding: '10px 14px',
-          backgroundColor: '#e9edff',
-          color: '#00427b',
+          backgroundColor: isError ? '#FFDAD6' : '#e9edff',
+          color: isError ? '#E30613' : '#00427b',
           fontWeight: 700,
           borderRadius: '6px',
           fontSize: '13px',
-          border: '1px solid #b4d1ff'
+          border: isError ? '1px solid #E30613' : '1px solid #b4d1ff'
         }}>
           {statusMsg}
         </div>
