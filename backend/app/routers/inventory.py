@@ -36,6 +36,7 @@ def get_system_stock(db: Session = Depends(get_db)):
 @router.post("/seed", response_model=List[BodegaStockResponse])
 def seed_inventory(db: Session = Depends(get_db)):
     """Pobla la base de datos con los 12 productos reales de Colsubsidio."""
+    db.query(ConteoFisico).delete()
     db.query(BodegaStock).delete()
     db.commit()
 
