@@ -50,6 +50,10 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
   - `BACKEND_INTERNAL_URL = http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:${{backend.PORT}}`
     (ajusta `backend` al nombre real del servicio backend)
   - `VITE_API_BASE_URL` = *(vacío / no definir)* → la Mini App usa mismo origen.
+  - `TELEGRAM_BOT_TOKEN = ...` → **activa la validación de initData** en el proxy: solo peticiones
+    de una Mini App real de tu bot pasan a `/api` (resto → 401). Sin esta variable, el proxy
+    **no** fuerza auth (útil en dev, inseguro en prod).
+  - `INITDATA_MAX_AGE_SECONDS` (opcional, def. 86400) → antigüedad máxima del initData (anti-replay).
 
 ## Telegram / BotFather
 1. `@BotFather` → crea el bot → guarda `TELEGRAM_BOT_TOKEN`.
@@ -64,6 +68,10 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
 ## Notas
 - Multipart (audio/imagen): el proxy hace streaming del body (sin body-parser sobre `/api`).
 - Secretos solo como variables de Railway; `.env` sigue en `.gitignore`.
-- **Follow-up de seguridad:** la "red privada" evita hits directos al backend, pero el proxy es
-  público. Para restringir a **usuarios reales del bot**, validar la firma `initData` de Telegram
-  en el backend (requiere código en el backend).
+- **Auth (implementada en el proxy):** `server.js` valida la firma `initData` de Telegram con
+  `TELEGRAM_BOT_TOKEN` antes de reenviar a `/api` (ver `miniapp/telegramAuth.js`). El frontend manda
+  el header `X-Telegram-Init-Data` en cada petición. Así solo una Mini App real de tu bot puede usar
+  la API; peticiones anónimas → 401. El backend sigue intacto y privado.
+- **Límite honesto:** esto restringe a usuarios reales del bot; un operario podría reusar *su* initData
+  dentro de su ventana de validez (mitigado por `auth_date`). Defense-in-depth = validar también en el
+  backend, pero al ser privado, con el proxy basta.
