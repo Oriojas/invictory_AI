@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { captureAudio, captureImage } from '../services/api.js';
-import { IconZap, IconMic, IconCamera, IconAlert, IconCheck, IconPackage, IconLock } from './Icons.jsx';
+import { IconZap, IconMic, IconCamera, IconAlert, IconCheck, IconPackage, IconLock, IconSpinner } from './Icons.jsx';
 
 export default function MiniAppSimulator({ onCaptureSuccess }) {
   const [loading, setLoading] = useState(false);
+  const [loadingType, setLoadingType] = useState(null); // 'audio' | 'image' | null
   const [statusMsg, setStatusMsg] = useState('');
   const [isError, setIsError] = useState(false);
   const [anomalyAlert, setAnomalyAlert] = useState(null);
@@ -33,6 +34,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
 
   const simulateAudio = async () => {
     setLoading(true);
+    setLoadingType('audio');
     setIsError(false);
     setAnomalyAlert(null);
     setStatusMsg('Enviando archivo de audio real a OpenAI Whisper & DeepSeek LLM...');
@@ -68,6 +70,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
       setStatusMsg(`Error de conexión con el backend: ${e.message}`);
     } finally {
       setLoading(false);
+      setLoadingType(null);
       if (onCaptureSuccess) {
         setTimeout(() => {
           onCaptureSuccess();
@@ -78,6 +81,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
 
   const simulateImage = async () => {
     setLoading(true);
+    setLoadingType('image');
     setIsError(false);
     setAnomalyAlert(null);
     setStatusMsg('Enviando imagen real a OpenAI Vision OCR (detail=high)...');
@@ -113,6 +117,7 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
       setStatusMsg(`Error de conexión con el backend: ${e.message}`);
     } finally {
       setLoading(false);
+      setLoadingType(null);
       if (onCaptureSuccess) {
         setTimeout(() => {
           onCaptureSuccess();
@@ -141,17 +146,19 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
             onClick={simulateAudio}
             disabled={loading}
             className="corporate-btn"
-            style={{ fontSize: '13px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            style={{ fontSize: '13px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
           >
-            <IconMic size={16} color="#FFFFFF" /> Simular Conteo por Voz
+            {loadingType === 'audio' ? <IconSpinner size={16} color="#FFFFFF" /> : <IconMic size={16} color="#FFFFFF" />}
+            {loadingType === 'audio' ? 'Procesando Voz...' : 'Simular Conteo por Voz'}
           </button>
           <button
             onClick={simulateImage}
             disabled={loading}
             className="corporate-btn corporate-btn-yellow"
-            style={{ fontSize: '13px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            style={{ fontSize: '13px', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
           >
-            <IconCamera size={16} color="#111827" /> Simular Conteo por Foto OCR
+            {loadingType === 'image' ? <IconSpinner size={16} color="#111827" /> : <IconCamera size={16} color="#111827" />}
+            {loadingType === 'image' ? 'Procesando OCR...' : 'Simular Conteo por Foto OCR'}
           </button>
         </div>
       </div>
@@ -160,20 +167,27 @@ export default function MiniAppSimulator({ onCaptureSuccess }) {
         <div style={{
           marginTop: '16px',
           padding: '10px 14px',
-          backgroundColor: isError ? '#FFDAD6' : '#e9edff',
-          color: isError ? '#E30613' : '#00427b',
+          backgroundColor: loading ? '#f1f3ff' : (isError ? '#FFDAD6' : '#e9edff'),
+          color: loading ? '#0059A3' : (isError ? '#E30613' : '#00427b'),
           fontWeight: 700,
           borderRadius: '6px',
           fontSize: '13px',
-          border: isError ? '1px solid #E30613' : '1px solid #b4d1ff',
+          border: loading ? '1px solid #c1c6d3' : (isError ? '1px solid #E30613' : '1px solid #b4d1ff'),
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          {isError ? <IconAlert size={18} color="#E30613" /> : <IconCheck size={18} color="#00427b" />}
+          {loading ? (
+            <IconSpinner size={18} color="#0059A3" />
+          ) : isError ? (
+            <IconAlert size={18} color="#E30613" />
+          ) : (
+            <IconCheck size={18} color="#00427b" />
+          )}
           <span>{statusMsg}</span>
         </div>
       )}
+
 
       {/* Alerta de Anomalía en Tiempo Real */}
       {anomalyAlert && anomalyAlert.is_anomaly && (
