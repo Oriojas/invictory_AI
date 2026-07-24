@@ -5,6 +5,7 @@ import Footer from '../components/Footer.jsx';
 import { IconDownload, IconFileText } from '../components/Icons.jsx';
 import { useInView } from '../hooks/useInView.js';
 import InvictoryRoadmap from '../components/InvictoryRoadmap/InvictoryRoadmap.jsx';
+import GridBackground from '../components/GridBackground.jsx';
 
 export default function LandingPage({ onGoToDashboard }) {
   const [metricsRef, metricsInView] = useInView({ threshold: 0.15 });
@@ -34,7 +35,10 @@ export default function LandingPage({ onGoToDashboard }) {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F8F7F2' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+      <GridBackground />
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+
       <main style={{ flex: 1, paddingBottom: '60px' }}>
         {/* 1. Hero Principal con Animación Minimalista estilo Trazo */}
         <Hero onGoToDashboard={onGoToDashboard} />
@@ -162,6 +166,7 @@ export default function LandingPage({ onGoToDashboard }) {
 
       {/* Footer Corporativo con Logos de Colsubsidio y 30X */}
       <Footer />
+      </div>
     </div>
   );
 }

@@ -22,6 +22,13 @@
   --color-warning-bg: #fff3cd;
   --color-warning-border: #ffc107;
   --color-warning-text: #856404;
+  --color-success: #1a7f4b;
+  --color-success-bg: #e6f4ec;
+  --color-success-ring: rgba(26, 127, 75, 0.15);
+
+  /* Layout */
+  --nav-height: 64px;
+  --content-max: 480px;
 
   /* Tipografía */
   --font-body: "Manrope", system-ui, -apple-system, sans-serif;

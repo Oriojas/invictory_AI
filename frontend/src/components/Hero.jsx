@@ -9,7 +9,7 @@ export default function Hero({ onGoToDashboard }) {
   const differentiators = [
     {
       icon: <IconMobile size={26} color="#0067b1" />,
-      badge: '0% PAPEL',
+      badge: 'REDUCCIÓN DE USO PAPEL',
       title: 'Captura Ágil Multimodal',
       desc: 'El personal de bodega dicta por voz o toma fotos de productos desde la Telegram Mini App.'
     },

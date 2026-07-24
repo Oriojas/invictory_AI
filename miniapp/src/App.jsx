@@ -1,74 +1,56 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTelegram } from "./useTelegram.js";
-import VoiceCapture from "./components/VoiceCapture.jsx";
-import PhotoCapture from "./components/PhotoCapture.jsx";
-import ResultView from "./components/ResultView.jsx";
+import BottomNav from "./nav/BottomNav.jsx";
+import HomeScreen from "./screens/HomeScreen.jsx";
+import CaptureScreen from "./screens/CaptureScreen.jsx";
+import AlertsScreen from "./screens/AlertsScreen.jsx";
+import SettingsScreen from "./screens/SettingsScreen.jsx";
+import { getDiscrepancies } from "./api.js";
 
 export default function App() {
-  const { user, haptic } = useTelegram();
-  const [mode, setMode] = useState("voice"); // "voice" | "photo"
-  const [status, setStatus] = useState(null); // { message, error }
-  const [result, setResult] = useState(null); // CaptureResponse
+  const { user, isTelegram, showBackButton, hideBackButton, haptic } = useTelegram();
+  const [tab, setTab] = useState("inicio");
+  const [reloadToken, setReloadToken] = useState(0);
+  const [alertsCount, setAlertsCount] = useState(0);
 
-  function handleProcessing(message) {
-    setResult(null);
-    setStatus({ message, error: false });
-  }
-  function handleResult(data) {
-    setStatus(null);
-    setResult(data);
-    haptic?.notificationOccurred?.(data?.anomaly?.is_anomaly ? "warning" : "success");
-  }
-  function handleError(message) {
-    setStatus({ message, error: true });
-  }
-  function reset() {
-    setResult(null);
-    setStatus(null);
+  // Refresca datos dependientes del backend (Inicio, Alertas, punto del nav).
+  const refresh = useCallback(() => setReloadToken((t) => t + 1), []);
+
+  useEffect(() => {
+    let alive = true;
+    getDiscrepancies()
+      .then((d) => alive && setAlertsCount(d.total_descuadres || 0))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [reloadToken]);
+
+  function changeTab(next) {
+    haptic?.("impact", "light");
+    setTab(next);
   }
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <span className="badge">Colsubsidio x 30X</span>
-        <h1>Invictory_AI</h1>
-        <p>Captura inteligente de inventario hotelero</p>
-        {user && <p className="greeting">Hola, {user.first_name} 👋</p>}
-      </header>
+    <div className="app-shell">
+      {tab === "inicio" && (
+        <HomeScreen user={user} onStartCapture={() => setTab("captura")} reloadToken={reloadToken} />
+      )}
+      {tab === "captura" && (
+        <CaptureScreen
+          showBackButton={showBackButton}
+          hideBackButton={hideBackButton}
+          haptic={haptic}
+          onGoAlerts={() => setTab("alertas")}
+          onCounted={refresh}
+        />
+      )}
+      {tab === "alertas" && <AlertsScreen reloadToken={reloadToken} />}
+      {tab === "ajustes" && (
+        <SettingsScreen user={user} isTelegram={isTelegram} onReseeded={refresh} />
+      )}
 
-      <main className="main-content">
-        <div className="mode-tabs">
-          <button
-            className={`tab-btn ${mode === "voice" ? "active" : ""}`}
-            onClick={() => setMode("voice")}
-          >
-            🎙️ Dictado por voz
-          </button>
-          <button
-            className={`tab-btn ${mode === "photo" ? "active" : ""}`}
-            onClick={() => setMode("photo")}
-          >
-            📷 Captura OCR
-          </button>
-        </div>
-
-        {mode === "voice" ? (
-          <VoiceCapture onProcessing={handleProcessing} onResult={handleResult} onError={handleError} />
-        ) : (
-          <PhotoCapture onProcessing={handleProcessing} onResult={handleResult} onError={handleError} />
-        )}
-
-        {status && (
-          <div className={`status-card ${status.error ? "error" : ""}`}>
-            {!status.error && <div className="spinner" />}
-            <p>{status.error ? `⚠️ ${status.message}` : status.message}</p>
-          </div>
-        )}
-
-        {result && (
-          <ResultView conteo={result.conteo || result} anomaly={result.anomaly} onReset={reset} />
-        )}
-      </main>
+      <BottomNav active={tab} onChange={changeTab} alertsCount={alertsCount} />
     </div>
   );
 }

@@ -48,7 +48,7 @@ export default function VoiceCapture({ onProcessing, onResult, onError }) {
   }
 
   return (
-    <section className="capture-card">
+    <section className="card capture-card">
       <h2>Dictar inventario por audio</h2>
       <p className="description">
         Presiona y dicta el conteo físico. Ej: "Encontré 15 cazuelas en la bodega del restaurante".
