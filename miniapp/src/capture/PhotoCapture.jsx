@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { captureImage } from "../api.js";
 
-// Captura/sube una foto del insumo y la envía al backend (OCR Vision).
-export default function PhotoCapture({ onProcessing, onResult, onError }) {
+// Captura/sube una foto y EMITE el archivo crudo (onCapture).
+// El envío/encolado lo decide CaptureScreen (según haya conexión o no).
+export default function PhotoCapture({ onCapture }) {
   const [preview, setPreview] = useState(null);
   const fileRef = useRef(null);
   const selectedRef = useRef(null);
@@ -21,14 +21,10 @@ export default function PhotoCapture({ onProcessing, onResult, onError }) {
     setPreview(URL.createObjectURL(file));
   }
 
-  async function send() {
-    if (!selectedRef.current) return;
-    onProcessing("📸 Procesando imagen con OCR de alta precisión…");
-    try {
-      onResult(await captureImage(selectedRef.current));
-    } catch (err) {
-      onError(`Error al procesar imagen: ${err.message}`);
-    }
+  function send() {
+    const file = selectedRef.current;
+    if (!file) return;
+    onCapture({ tipo: "imagen", blob: file, filename: file.name || "captura_foto.jpg" });
   }
 
   return (

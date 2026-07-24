@@ -699,6 +699,109 @@ button {
   background: var(--color-alert-red);
 }
 
+/* ===== Offline: banner, cola, pendientes ===== */
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.offline-banner.warn {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid var(--color-warning-border);
+}
+.offline-banner.info {
+  background: #eaf1fb;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-fixed, #a5c8ff);
+}
+.offline-banner .offline-cta {
+  margin-left: auto;
+  font-weight: 700;
+}
+
+.pending-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eaf1fb;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+}
+.pending-icon {
+  font-size: 20px;
+}
+.pending-body {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.pending-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.pending-sub {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+.pending-sync-btn {
+  flex-shrink: 0;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+}
+.pending-sync-btn:disabled {
+  opacity: 0.5;
+}
+
+.queue-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+.queue-badge.pendiente {
+  background: var(--color-surface-bg);
+  color: var(--color-on-surface-variant);
+  border: var(--border-muted);
+}
+.queue-badge.enviando {
+  background: #eaf1fb;
+  color: var(--color-primary);
+}
+.queue-badge.error {
+  background: var(--color-error-bg);
+  color: var(--color-alert-red);
+}
+.link-btn {
+  border: none;
+  background: none;
+  color: var(--color-alert-red);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0;
+}
+.success-check.queued {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.15);
+}
+
 /* ===== Animaciones ===== */
 @keyframes spin {
   to {

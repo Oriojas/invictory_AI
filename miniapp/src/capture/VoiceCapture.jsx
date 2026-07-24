@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
-import { captureAudio } from "../api.js";
 
-// Graba el dictado del operario con MediaRecorder y lo envía al backend (STT).
-export default function VoiceCapture({ onProcessing, onResult, onError }) {
+// Graba el dictado con MediaRecorder y EMITE el medio crudo (onCapture).
+// El envío/encolado lo decide CaptureScreen (según haya conexión o no).
+export default function VoiceCapture({ onCapture, onError }) {
   const [isRecording, setIsRecording] = useState(false);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -21,24 +21,19 @@ export default function VoiceCapture({ onProcessing, onResult, onError }) {
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
-      recorder.onstop = async () => {
+      recorder.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         const mimeType = recorder.mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type: mimeType });
         const ext = mimeType.includes("ogg") ? "ogg" : mimeType.includes("mp4") ? "mp4" : "webm";
-        onProcessing("🎙️ Analizando voz con Whisper + DeepSeek…");
-        try {
-          onResult(await captureAudio(blob, `dictado_operario.${ext}`));
-        } catch (err) {
-          onError(`Error al procesar audio: ${err.message}`);
-        }
+        onCapture({ tipo: "audio", blob, filename: `dictado_operario.${ext}` });
       };
 
       recorder.start();
       recorderRef.current = recorder;
       setIsRecording(true);
     } catch (err) {
-      onError("No se pudo acceder al micrófono. Verifica los permisos.");
+      onError?.("No se pudo acceder al micrófono. Verifica los permisos.");
     }
   }
 
