@@ -17,7 +17,7 @@ export default function App() {
     }}>
       <Navbar activeView={activeView} setActiveView={setActiveView} />
 
-      <main style={{ flex: 1, backgroundColor: '#F8F7F2' }}>
+      <main style={{ flex: 1 }}>
         {activeView === 'landing' ? (
           <LandingPage onGoToDashboard={() => setActiveView('dashboard')} />
         ) : (
@@ -39,3 +39,5 @@ export default function App() {
     </div>
   );
 }
+
+
