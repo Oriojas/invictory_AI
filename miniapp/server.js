@@ -6,6 +6,7 @@ import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { validateInitData } from "./telegramAuth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "dist");
@@ -14,14 +15,36 @@ const PORT = process.env.PORT || 4173;
 const HOST = "::"; // dual-stack IPv6/IPv4 (compatible con Railway)
 const BACKEND = process.env.BACKEND_INTERNAL_URL;
 
+// Auth: solo peticiones con initData válido de Telegram pueden pasar a /api.
+// Se fuerza cuando hay TELEGRAM_BOT_TOKEN (prod); sin token (dev local) NO se fuerza.
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const INITDATA_MAX_AGE = Number(process.env.INITDATA_MAX_AGE_SECONDS || 86400);
+const AUTH_ENFORCED = !!BOT_TOKEN;
+
 if (!BACKEND) {
   console.warn(
     "[server] BACKEND_INTERNAL_URL no definido — las llamadas a /api fallarán. " +
       "En Railway: http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:${{backend.PORT}}"
   );
 }
+if (!AUTH_ENFORCED) {
+  console.warn(
+    "[server] TELEGRAM_BOT_TOKEN no definido — auth de Telegram DESACTIVADA (ok en dev, NO en prod)."
+  );
+}
 
 const app = express();
+
+// Gate de autenticación: exige un initData de Telegram válido para tocar /api.
+// Va ANTES del proxy. Sin bot token (dev) se omite; con token se fuerza (401 si falta/es inválido).
+app.use((req, res, next) => {
+  if (!req.path.startsWith("/api") || !AUTH_ENFORCED) return next();
+  const result = validateInitData(req.get("X-Telegram-Init-Data"), BOT_TOKEN, INITDATA_MAX_AGE);
+  if (!result.ok) {
+    return res.status(401).json({ detail: `No autorizado: ${result.reason}` });
+  }
+  next();
+});
 
 // Proxy PRIMERO y sin body-parser: reenvía el body tal cual (necesario para multipart audio/imagen).
 // En http-proxy-middleware v3 se monta en la raíz con `pathFilter` para CONSERVAR el prefijo /api

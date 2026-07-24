@@ -4,8 +4,17 @@
 // con VITE_API_BASE_URL para apuntar a un backend absoluto si hiciera falta.
 export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
+// initData firmado por Telegram; el proxy lo valida para autorizar la petición.
+function authHeaders() {
+  const initData = typeof window !== "undefined" ? window.Telegram?.WebApp?.initData : "";
+  return initData ? { "X-Telegram-Init-Data": initData } : {};
+}
+
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, options);
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: { ...authHeaders(), ...(options.headers || {}) },
+  });
   if (!res.ok) {
     let detail;
     try {
