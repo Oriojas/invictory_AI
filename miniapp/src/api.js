@@ -1,5 +1,8 @@
 // Cliente del backend FastAPI. El backend es la fuente de la verdad (no se modifica).
-export const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+// Por defecto usa MISMO ORIGEN (""): en dev lo resuelve el proxy de Vite y en prod el
+// server.js (Express) que proxea /api al backend privado de Railway. Se puede sobreescribir
+// con VITE_API_BASE_URL para apuntar a un backend absoluto si hiciera falta.
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, options);

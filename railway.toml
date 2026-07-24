@@ -1,0 +1,17 @@
+# Config-as-code del servicio BACKEND (FastAPI).
+# Railway lee este archivo en el servicio cuyo Root Directory es la raíz del repo.
+# Nixpacks detecta Python por pyproject.toml / uv.lock.
+# El servicio frontend NO usa este archivo (su Root Directory es miniapp/, ver miniapp/railway.toml).
+#
+# Nota: Railway NO tiene un YAML único multi-servicio (a diferencia de docker-compose / render.yaml).
+# La config es por-servicio; la topología (servicios, Postgres, dominio, variables) se crea en el
+# dashboard/CLI. Ver miniapp/DEPLOY.md.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+# --host :: (IPv6) es obligatorio para la red privada de Railway; $PORT lo inyecta Railway.
+startCommand = "uvicorn backend.app.main:app --host :: --port $PORT"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
