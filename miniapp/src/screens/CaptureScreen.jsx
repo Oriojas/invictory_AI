@@ -3,10 +3,13 @@ import VoiceCapture from "../capture/VoiceCapture.jsx";
 import PhotoCapture from "../capture/PhotoCapture.jsx";
 import ReconciliationView from "../capture/ReconciliationView.jsx";
 import SuccessView from "../capture/SuccessView.jsx";
+import { useQueue } from "../offline/QueueProvider.jsx";
+import { captureAudio, captureImage, isNetworkError } from "../api.js";
 
-// Orquesta el flujo: capturar → conciliar → exito.
-export default function CaptureScreen({ showBackButton, hideBackButton, haptic, onGoAlerts, onCounted }) {
-  const [step, setStep] = useState("capturar"); // capturar | conciliar | exito
+// Orquesta el flujo: capturar → (online) conciliar → exito · (offline/fallo de red) encolado.
+export default function CaptureScreen({ showBackButton, hideBackButton, haptic, onGoAlerts, onGoPending, onCounted }) {
+  const { online, enqueue } = useQueue();
+  const [step, setStep] = useState("capturar"); // capturar | conciliar | exito | encolado
   const [mode, setMode] = useState("voice"); // voice | photo
   const [status, setStatus] = useState(null); // { message, error }
   const [result, setResult] = useState(null); // CaptureResponse
@@ -16,24 +19,51 @@ export default function CaptureScreen({ showBackButton, hideBackButton, haptic, 
     if (step === "capturar") {
       hideBackButton?.();
     } else {
-      showBackButton?.(() => setStep("capturar"));
+      showBackButton?.(() => newCapture());
     }
     return () => hideBackButton?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, showBackButton, hideBackButton]);
 
-  function handleProcessing(message) {
-    setStatus({ message, error: false });
+  function sendMedia(media) {
+    if (media.tipo === "audio") return captureAudio(media.blob, media.filename);
+    const file = new File([media.blob], media.filename, { type: media.blob.type || "image/jpeg" });
+    return captureImage(file);
   }
-  function handleResult(data) {
-    setStatus(null);
-    setResult(data);
-    setStep("conciliar");
-    haptic?.("notification", data?.anomaly?.is_anomaly ? "warning" : "success");
-    onCounted?.(); // avisa a App para refrescar contadores/alertas
+
+  async function handleCapture(media) {
+    // Offline: encolar directo, sin intentar la red.
+    if (!online) {
+      await enqueue(media);
+      setStep("encolado");
+      haptic?.("notification", "warning");
+      return;
+    }
+    setStatus({ message: media.tipo === "audio" ? "🎙️ Analizando voz…" : "📸 Procesando imagen…", error: false });
+    try {
+      const res = await sendMedia(media);
+      setStatus(null);
+      setResult(res);
+      setStep("conciliar");
+      haptic?.("notification", res?.anomaly?.is_anomaly ? "warning" : "success");
+      onCounted?.();
+    } catch (err) {
+      // Se cayó la red durante el envío: encolar como fallback.
+      if (isNetworkError(err)) {
+        await enqueue(media);
+        setStatus(null);
+        setStep("encolado");
+        haptic?.("notification", "warning");
+      } else {
+        setStatus({ message: `Error al procesar: ${err.message}`, error: true });
+      }
+    }
   }
+
   function handleError(message) {
     setStatus({ message, error: true });
   }
+
   function newCapture() {
     setResult(null);
     setStatus(null);
@@ -66,11 +96,36 @@ export default function CaptureScreen({ showBackButton, hideBackButton, haptic, 
     );
   }
 
+  if (step === "encolado") {
+    return (
+      <div className="screen">
+        <div className="success-wrap">
+          <div className="success-check queued">⏳</div>
+          <h2>Guardado en cola</h2>
+          <p>
+            Sin conexión ahora mismo. La captura se guardó localmente y se procesará
+            automáticamente apenas vuelva el Wi-Fi o los datos.
+          </p>
+        </div>
+        <div className="btn-row">
+          <button className="action-btn cta" onClick={newCapture}>
+            + Nueva captura
+          </button>
+          <button className="action-btn secondary" onClick={onGoPending}>
+            Ver pendientes
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="screen">
       <div>
         <div className="screen-title">Captura multimodal</div>
-        <div className="screen-subtitle">Registra el conteo físico por voz o foto</div>
+        <div className="screen-subtitle">
+          Registra el conteo físico por voz o foto{!online ? " · sin conexión (se encolará)" : ""}
+        </div>
       </div>
 
       <div className="mode-tabs">
@@ -83,9 +138,9 @@ export default function CaptureScreen({ showBackButton, hideBackButton, haptic, 
       </div>
 
       {mode === "voice" ? (
-        <VoiceCapture onProcessing={handleProcessing} onResult={handleResult} onError={handleError} />
+        <VoiceCapture onCapture={handleCapture} onError={handleError} />
       ) : (
-        <PhotoCapture onProcessing={handleProcessing} onResult={handleResult} onError={handleError} />
+        <PhotoCapture onCapture={handleCapture} onError={handleError} />
       )}
 
       {status && (

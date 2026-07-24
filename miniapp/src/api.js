@@ -15,6 +15,15 @@ async function request(path, options = {}) {
   return res.json();
 }
 
+// Distingue un fallo de RED (sin conexión) de un error HTTP del backend.
+// Chrome: "Failed to fetch" · Firefox: "NetworkError…" · Safari: "Load failed".
+export function isNetworkError(err) {
+  return (
+    err instanceof TypeError ||
+    /failed to fetch|networkerror|load failed/i.test(String(err?.message || ""))
+  );
+}
+
 // --- Captura multimodal (POST multipart, campo "file") ---
 export function captureAudio(blob, filename = "dictado_operario.mp3") {
   const fd = new FormData();
