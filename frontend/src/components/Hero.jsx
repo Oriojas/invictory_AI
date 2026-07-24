@@ -1,8 +1,11 @@
 import React from 'react';
 import { IconMobile, IconAlert, IconBrain, IconRuler, IconDashboard, IconZap, IconList } from './Icons.jsx';
 import HeroAnimation from './HeroAnimation.jsx';
+import { useInView } from '../hooks/useInView.js';
 
 export default function Hero({ onGoToDashboard }) {
+  const [ref, isInView] = useInView({ threshold: 0.1 });
+
   const differentiators = [
     {
       icon: <IconMobile size={26} color="#0067b1" />,
@@ -43,14 +46,14 @@ export default function Hero({ onGoToDashboard }) {
   ];
 
   return (
-    <section style={{
+    <section ref={ref} style={{
       maxWidth: '1280px',
       margin: '20px auto 40px auto',
       padding: '0 24px',
       position: 'relative'
     }}>
-      {/* Sección Superior: Titular & Descripción */}
-      <div style={{ textAlign: 'center', maxWidth: '840px', margin: '0 auto 36px auto' }}>
+      {/* Sección Superior: Titular & Descripción con Revelado Motion */}
+      <div className={`motion-reveal ${isInView ? 'is-visible' : ''}`} style={{ textAlign: 'center', maxWidth: '840px', margin: '0 auto 36px auto' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -104,7 +107,7 @@ export default function Hero({ onGoToDashboard }) {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <button
             onClick={onGoToDashboard}
-            className="corporate-btn"
+            className="corporate-btn motion-btn-interactive"
             style={{
               backgroundColor: '#0067b1', // Azul Colsubsidio
               padding: '16px 36px',
@@ -119,7 +122,7 @@ export default function Hero({ onGoToDashboard }) {
           </button>
           <a
             href="#workflow-section"
-            className="corporate-btn corporate-btn-yellow"
+            className="corporate-btn corporate-btn-yellow motion-btn-interactive"
             style={{
               backgroundColor: '#ffd000', // Amarillo Colsubsidio
               color: '#111827',
@@ -137,12 +140,11 @@ export default function Hero({ onGoToDashboard }) {
       </div>
 
       {/* Animación SVG Fluida & Organizada (Invictory AI Workflow Animation) */}
-      <div style={{ marginBottom: '48px' }}>
+      <div className={`motion-reveal ${isInView ? 'is-visible' : ''}`} style={{ marginBottom: '48px', transitionDelay: '0.15s' }}>
         <HeroAnimation />
       </div>
 
-
-      {/* Grid de 6 Tarjetas de Beneficios */}
+      {/* Grid de 6 Tarjetas de Beneficios con Interacción y Revelado Escalonado */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -150,7 +152,7 @@ export default function Hero({ onGoToDashboard }) {
         textAlign: 'left'
       }}>
         {differentiators.map((d, i) => (
-          <div key={i} className="corporate-card" style={{
+          <div key={i} className={`corporate-card motion-card-interactive motion-reveal ${isInView ? 'is-visible' : ''}`} style={{
             padding: '22px',
             backgroundColor: '#FFFFFF',
             border: '1px solid #c1c6d3',
@@ -158,7 +160,8 @@ export default function Hero({ onGoToDashboard }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 2px 6px rgba(0, 103, 177, 0.04)'
+            boxShadow: '0 2px 6px rgba(0, 103, 177, 0.04)',
+            transitionDelay: `${0.2 + (i * 0.08)}s`
           }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
@@ -197,5 +200,6 @@ export default function Hero({ onGoToDashboard }) {
     </section>
   );
 }
+
 
 

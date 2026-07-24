@@ -3,9 +3,14 @@ import Hero from '../components/Hero.jsx';
 import Workflow from '../components/Workflow.jsx';
 import Footer from '../components/Footer.jsx';
 import { IconDownload, IconFileText } from '../components/Icons.jsx';
+import { useInView } from '../hooks/useInView.js';
+import InvictoryRoadmap from '../components/InvictoryRoadmap/InvictoryRoadmap.jsx';
 import GridBackground from '../components/GridBackground.jsx';
 
 export default function LandingPage({ onGoToDashboard }) {
+  const [metricsRef, metricsInView] = useInView({ threshold: 0.15 });
+  const [enterpriseRef, enterpriseInView] = useInView({ threshold: 0.15 });
+
   const metrics = [
     { value: '80%', label: 'Ahorro de Tiempo', desc: 'Reducción drástica en tiempos de toma de inventario físico' },
     { value: '100%', label: 'Precisión Digital', desc: 'Eliminación completa de errores de tipeo y hojas de papel' },
@@ -38,13 +43,13 @@ export default function LandingPage({ onGoToDashboard }) {
         {/* 1. Hero Principal con Animación Minimalista estilo Trazo */}
         <Hero onGoToDashboard={onGoToDashboard} />
 
-        {/* 2. Franja de Métricas de Impacto Comercial (Social Proof & ROI) en Azul Colsubsidio */}
-        <section style={{
+        {/* 2. Franja de Métricas de Impacto Comercial (Social Proof & ROI) con Revelado Motion */}
+        <section ref={metricsRef} style={{
           maxWidth: '1280px',
           margin: '40px auto',
           padding: '0 24px'
         }}>
-          <div style={{
+          <div className={`motion-reveal ${metricsInView ? 'is-visible' : ''}`} style={{
             backgroundColor: '#0067b1', // Azul Colsubsidio Pantone 2196 C
             borderRadius: '16px',
             padding: '40px 32px',
@@ -75,8 +80,8 @@ export default function LandingPage({ onGoToDashboard }) {
         <Workflow />
 
         {/* 4. Sección de Garantía Enterprise & Confianza Corporativa */}
-        <section style={{ maxWidth: '1280px', margin: '60px auto 40px auto', padding: '0 24px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <section ref={enterpriseRef} style={{ maxWidth: '1280px', margin: '60px auto 40px auto', padding: '0 24px' }}>
+          <div className={`motion-reveal ${enterpriseInView ? 'is-visible' : ''}`} style={{ textAlign: 'center', marginBottom: '40px' }}>
             <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
               Diseñado para la Escala y Exigencia Corporativa
             </h2>
@@ -87,7 +92,7 @@ export default function LandingPage({ onGoToDashboard }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
             {enterpriseFeatures.map((f, i) => (
-              <div key={i} className="corporate-card" style={{ padding: '28px', backgroundColor: '#FFFFFF', borderRadius: '12px' }}>
+              <div key={i} className={`corporate-card motion-card-interactive motion-reveal ${enterpriseInView ? 'is-visible' : ''}`} style={{ padding: '28px', backgroundColor: '#FFFFFF', borderRadius: '12px', transitionDelay: `${0.1 + (i * 0.12)}s` }}>
                 <h3 style={{ color: '#0067b1', fontSize: '18px', fontWeight: 800, marginBottom: '12px' }}>
                   {f.title}
                 </h3>
@@ -98,15 +103,19 @@ export default function LandingPage({ onGoToDashboard }) {
             ))}
           </div>
 
+          {/* 5. Sección Roadmap de Evolución de Producto (V1.0 a V4.0) */}
+          <InvictoryRoadmap />
+
           {/* CTA Comercial Final con Botón de Descarga del Manual de Adopción */}
-          <div style={{
+          <div className={`motion-reveal ${enterpriseInView ? 'is-visible' : ''}`} style={{
             textAlign: 'center',
             marginTop: '56px',
             backgroundColor: '#FFFFFF',
             padding: '48px 32px',
             borderRadius: '16px',
             border: '1px solid #c1c6d3',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.04)'
+            boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+            transitionDelay: '0.35s'
           }}>
             <h3 style={{ fontSize: '28px', fontWeight: 900, color: '#111827', marginBottom: '12px' }}>
               ¿Listo para transformar el control de tus almacenes?
@@ -118,7 +127,7 @@ export default function LandingPage({ onGoToDashboard }) {
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
               <button
                 onClick={onGoToDashboard}
-                className="corporate-btn"
+                className="corporate-btn motion-btn-interactive"
                 style={{
                   backgroundColor: '#0067b1',
                   padding: '18px 36px',
@@ -134,7 +143,7 @@ export default function LandingPage({ onGoToDashboard }) {
               <a
                 href="/Manual_Operativo_Adopcion_Colsubsidio.pdf"
                 download="Manual_Operativo_Adopcion_Colsubsidio.pdf"
-                className="corporate-btn corporate-btn-yellow"
+                className="corporate-btn corporate-btn-yellow motion-btn-interactive"
                 style={{
                   backgroundColor: '#ffd000',
                   color: '#111827',
@@ -149,7 +158,6 @@ export default function LandingPage({ onGoToDashboard }) {
                 <IconDownload size={20} color="#111827" />
                 Descargar Manual de Adopción (PDF)
               </a>
-
 
             </div>
           </div>

@@ -1,7 +1,10 @@
 import React from 'react';
 import { IconMobile, IconBrain, IconDashboard } from './Icons.jsx';
+import { useInView } from '../hooks/useInView.js';
 
 export default function Workflow() {
+  const [ref, isInView] = useInView({ threshold: 0.15 });
+
   const steps = [
     {
       num: '01',
@@ -9,7 +12,7 @@ export default function Workflow() {
       icon: <IconMobile size={28} color="#0067b1" />,
       desc: 'En la mini app el operario podrá interactuar para hacer la carga de información por dictado de voz o captura de foto y la verificación en tiempo real.',
       image: '/clean_step1.jpg',
-      badge: 'BODEGA Y CAMPO'
+      stagger: 'motion-stagger-1'
     },
     {
       num: '02',
@@ -17,7 +20,7 @@ export default function Workflow() {
       icon: <IconBrain size={28} color="#0067b1" />,
       desc: 'La IA traduce expresiones coloquiales al catálogo ERP exacto y audita las cantidades contra el stock histórico. Si detecta descuadres, alerta al instante.',
       image: '/clean_step2.jpg',
-      badge: 'PROCESAMIENTO EN TIEMPO REAL'
+      stagger: 'motion-stagger-2'
     },
     {
       num: '03',
@@ -25,17 +28,17 @@ export default function Workflow() {
       icon: <IconDashboard size={28} color="#0067b1" />,
       desc: 'Gerencia y auditores visualizan métricas de precisión en vivo, realizan preguntas al asistente inteligente y exportan informes certificados.',
       image: '/clean_step3.jpg',
-      badge: 'TOMA DE DECISIONES'
+      stagger: 'motion-stagger-3'
     }
   ];
 
   return (
-    <section id="workflow-section" style={{
+    <section id="workflow-section" ref={ref} style={{
       maxWidth: '1280px',
       margin: '60px auto',
       padding: '0 24px'
     }}>
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+      <div className={`motion-reveal ${isInView ? 'is-visible' : ''}`} style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
           Cómo Funciona en 3 Simples Pasos
         </h2>
@@ -50,7 +53,7 @@ export default function Workflow() {
         gap: '24px'
       }}>
         {steps.map((step) => (
-          <div key={step.num} className="corporate-card" style={{
+          <div key={step.num} className={`corporate-card motion-card-interactive motion-reveal ${step.stagger} ${isInView ? 'is-visible' : ''}`} style={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -74,7 +77,7 @@ export default function Workflow() {
                   {step.icon}
                 </div>
                 <span style={{
-                  backgroundColor: '#0067b1', // Azul Colsubsidio
+                  backgroundColor: '#0067b1',
                   color: '#FFFFFF',
                   fontWeight: 900,
                   padding: '4px 10px',
@@ -93,7 +96,6 @@ export default function Workflow() {
               </p>
             </div>
 
-            {/* Contenedor Limpio Unificado sin Caja ni Borde Gris */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -121,8 +123,3 @@ export default function Workflow() {
     </section>
   );
 }
-
-
-
-
-

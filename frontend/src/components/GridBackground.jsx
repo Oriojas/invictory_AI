@@ -7,6 +7,7 @@ export default function GridBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     let animationFrameId;
 
     // Configuración del grid (reducido al 40% del tamaño original: 36px * 0.4 = ~14px)
