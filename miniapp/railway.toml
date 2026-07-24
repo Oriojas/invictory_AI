@@ -1,0 +1,12 @@
+# Config-as-code del servicio FRONTEND (Mini App).
+# Railway lee este archivo en el servicio con Root Directory = miniapp/.
+# Nixpacks detecta Node por package.json: instala deps, corre "build" (vite build) y luego "start"
+# (server.js, que sirve dist/ y proxea /api al backend privado).
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

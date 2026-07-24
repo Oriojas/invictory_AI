@@ -17,6 +17,11 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
    Postgres (plugin Railway)
 ```
 
+> **Config-as-code:** Railway **no** usa un YAML único multi-servicio (eso es docker-compose /
+> `render.yaml`). La config es **por servicio** vía `railway.toml`, leído según el *Root Directory*:
+> `railway.toml` (raíz) → backend; `miniapp/railway.toml` → frontend. La topología (servicios,
+> Postgres, dominios, variables con `${{...}}`) se crea en el dashboard/CLI.
+
 ## Servicios (3, mismo repo)
 
 ### 1) Postgres
@@ -24,8 +29,8 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
 
 ### 2) backend (FastAPI) — PRIVADO
 - **New service → GitHub repo** (este repo). **Root Directory:** raíz del repo (vacío).
-- Arranque: lo da el `Procfile` de la raíz:
-  `web: uvicorn backend.app.main:app --host :: --port $PORT`
+- Build y arranque: en `railway.toml` de la raíz (config-as-code de ESTE servicio):
+  `startCommand = "uvicorn backend.app.main:app --host :: --port $PORT"`
   (el `::` es obligatorio para la red privada IPv6 de Railway).
 - **Settings → Networking:** NO generar dominio público (si Railway creó uno, elimínalo).
   Deja solo el **Private Networking** (queda `<backend>.railway.internal`).
@@ -39,7 +44,7 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
 
 ### 3) frontend (Mini App) — PÚBLICO
 - **New service → mismo repo**. **Root Directory:** `miniapp`.
-- Nixpacks detecta Node: build `npm install && npm run build`, start `npm start` (server.js).
+- Config en `miniapp/railway.toml`. Nixpacks detecta Node: instala, `npm run build`, y `npm start` (server.js).
 - **Settings → Networking:** genera **dominio público** (esta URL va a BotFather).
 - **Variables:**
   - `BACKEND_INTERNAL_URL = http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:${{backend.PORT}}`
