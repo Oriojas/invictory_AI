@@ -6,7 +6,7 @@ import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { validateInitData } from "./telegramAuth.js";
+import { validate } from "@telegram-apps/init-data-node";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "dist");
@@ -48,13 +48,15 @@ const app = express();
 app.use((req, res, next) => {
   if (!req.path.startsWith("/api") || !AUTH_ENFORCED) return next();
   const initData = req.get("X-Telegram-Init-Data");
-  const result = validateInitData(initData, BOT_TOKEN, INITDATA_MAX_AGE);
-  if (!result.ok) {
+  try {
+    // Librería oficial de Telegram: maneja el formato actual (incl. campo `signature`).
+    validate(initData || "", BOT_TOKEN, { expiresIn: INITDATA_MAX_AGE });
+    return next();
+  } catch (e) {
     // Diagnóstico en logs de Railway (no expone nada sensible al cliente).
-    console.warn(`[auth] 401 en ${req.path}: ${result.reason} · initData ${initData ? "presente" : "AUSENTE"}`);
-    return res.status(401).json({ detail: `No autorizado: ${result.reason}` });
+    console.warn(`[auth] 401 en ${req.path}: ${e.message} · initData ${initData ? "presente" : "AUSENTE"}`);
+    return res.status(401).json({ detail: `No autorizado: ${e.message}` });
   }
-  next();
 });
 
 // Proxy PRIMERO y sin body-parser: reenvía el body tal cual (necesario para multipart audio/imagen).
