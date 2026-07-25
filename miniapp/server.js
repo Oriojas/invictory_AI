@@ -78,7 +78,7 @@ app.use(
     xfwd: true,
     on: {
       error: (err, _req, res) => {
-        console.error(`[proxy] error hacia ${BACKEND}: ${err.message}`);
+        console.error(`[proxy] error hacia ${BACKEND}: ${err.code || ""} ${err.message || "(sin mensaje — ¿falta el puerto en BACKEND_INTERNAL_URL?)"}`);
         if (res && !res.headersSent && typeof res.writeHead === "function") {
           res.writeHead(502, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ detail: "Backend no disponible" }));
