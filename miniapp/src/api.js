@@ -1,8 +1,20 @@
 // Cliente del backend FastAPI. El backend es la fuente de la verdad (no se modifica).
-export const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+// Por defecto usa MISMO ORIGEN (""): en dev lo resuelve el proxy de Vite y en prod el
+// server.js (Express) que proxea /api al backend privado de Railway. Se puede sobreescribir
+// con VITE_API_BASE_URL para apuntar a un backend absoluto si hiciera falta.
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+
+// initData firmado por Telegram; el proxy lo valida para autorizar la petición.
+function authHeaders() {
+  const initData = typeof window !== "undefined" ? window.Telegram?.WebApp?.initData : "";
+  return initData ? { "X-Telegram-Init-Data": initData } : {};
+}
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, options);
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: { ...authHeaders(), ...(options.headers || {}) },
+  });
   if (!res.ok) {
     let detail;
     try {
@@ -13,6 +25,15 @@ async function request(path, options = {}) {
     throw new Error(detail || `Error HTTP ${res.status}`);
   }
   return res.json();
+}
+
+// Distingue un fallo de RED (sin conexión) de un error HTTP del backend.
+// Chrome: "Failed to fetch" · Firefox: "NetworkError…" · Safari: "Load failed".
+export function isNetworkError(err) {
+  return (
+    err instanceof TypeError ||
+    /failed to fetch|networkerror|load failed/i.test(String(err?.message || ""))
+  );
 }
 
 // --- Captura multimodal (POST multipart, campo "file") ---

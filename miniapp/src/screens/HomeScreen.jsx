@@ -3,6 +3,7 @@ import BrandHeader from "../components/BrandHeader.jsx";
 import LocationCard from "../components/LocationCard.jsx";
 import StatTile from "../components/StatTile.jsx";
 import { getDiscrepancies, getPhysicalCounts } from "../api.js";
+import { useQueue } from "../offline/QueueProvider.jsx";
 
 function isToday(iso) {
   if (!iso) return false;
@@ -17,7 +18,8 @@ function isToday(iso) {
 
 const FUENTE_ICON = { audio: "🎙️", imagen: "📷" };
 
-export default function HomeScreen({ user, onStartCapture, reloadToken }) {
+export default function HomeScreen({ user, onStartCapture, onGoPending, reloadToken }) {
+  const { pendingCount, online, syncing, sync } = useQueue();
   const [data, setData] = useState(null); // { disc, counts }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,6 +49,25 @@ export default function HomeScreen({ user, onStartCapture, reloadToken }) {
     <div className="screen">
       <BrandHeader user={user} />
       <LocationCard />
+
+      {pendingCount > 0 && (
+        <div className="pending-card">
+          <span className="pending-icon">🔄</span>
+          <div className="pending-body" onClick={onGoPending} role="button">
+            <div className="pending-title">{pendingCount} captura(s) pendiente(s)</div>
+            <div className="pending-sub">
+              {online ? "Listas para sincronizar con el sistema" : "Sin conexión — se enviarán al reconectar"}
+            </div>
+          </div>
+          <button
+            className="pending-sync-btn"
+            onClick={sync}
+            disabled={!online || syncing}
+          >
+            {syncing ? "…" : "Sincronizar"}
+          </button>
+        </div>
+      )}
 
       {error ? (
         <div className="status-card error">

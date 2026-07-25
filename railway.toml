@@ -1,0 +1,17 @@
+# Config-as-code del servicio BACKEND (FastAPI).
+# Railway lee este archivo en el servicio cuyo Root Directory es la raíz del repo.
+# Se construye con DOCKERFILE (determinista) en vez de Nixpacks (deprecado por Railway).
+#
+# Nota: Railway NO tiene un YAML único multi-servicio (a diferencia de docker-compose / render.yaml).
+# La config es por-servicio; la topología (servicios, Postgres, dominio, variables) se crea en el
+# dashboard/CLI. Ver miniapp/DEPLOY.md.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Sin startCommand: lo define el CMD del Dockerfile (usa `sh -c` para expandir ${PORT}).
+# Railway ejecuta el startCommand como exec (sin shell) y NO expandiría $PORT -> por eso se omite.
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

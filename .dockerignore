@@ -1,0 +1,17 @@
+# Contexto de build del servicio backend (raíz). Solo se necesitan requirements.txt, backend/ y resources/.
+miniapp
+frontend
+docs
+files
+alembic
+.venv
+venv
+env
+ENV
+__pycache__
+*.pyc
+node_modules
+.git
+*.db
+.env
+.env.*
