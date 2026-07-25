@@ -17,7 +17,15 @@ const BACKEND = process.env.BACKEND_INTERNAL_URL;
 
 // Auth: solo peticiones con initData válido de Telegram pueden pasar a /api.
 // Se fuerza cuando hay TELEGRAM_BOT_TOKEN (prod); sin token (dev local) NO se fuerza.
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+// Limpia espacios/comillas/saltos de línea pegados al copiar el token (causa común de "firma inválida").
+function cleanToken(raw) {
+  let t = (raw || "").trim();
+  if (t.length >= 2 && ((t[0] === '"' && t.endsWith('"')) || (t[0] === "'" && t.endsWith("'")))) {
+    t = t.slice(1, -1); // quita comillas envolventes
+  }
+  return t.trim(); // vuelve a limpiar por si había espacios dentro de las comillas
+}
+const BOT_TOKEN = cleanToken(process.env.TELEGRAM_BOT_TOKEN);
 const INITDATA_MAX_AGE = Number(process.env.INITDATA_MAX_AGE_SECONDS || 86400);
 const AUTH_ENFORCED = !!BOT_TOKEN;
 
@@ -39,8 +47,11 @@ const app = express();
 // Va ANTES del proxy. Sin bot token (dev) se omite; con token se fuerza (401 si falta/es inválido).
 app.use((req, res, next) => {
   if (!req.path.startsWith("/api") || !AUTH_ENFORCED) return next();
-  const result = validateInitData(req.get("X-Telegram-Init-Data"), BOT_TOKEN, INITDATA_MAX_AGE);
+  const initData = req.get("X-Telegram-Init-Data");
+  const result = validateInitData(initData, BOT_TOKEN, INITDATA_MAX_AGE);
   if (!result.ok) {
+    // Diagnóstico en logs de Railway (no expone nada sensible al cliente).
+    console.warn(`[auth] 401 en ${req.path}: ${result.reason} · initData ${initData ? "presente" : "AUSENTE"}`);
     return res.status(401).json({ detail: `No autorizado: ${result.reason}` });
   }
   next();
