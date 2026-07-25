@@ -11,7 +11,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-# El Dockerfile ya define el arranque; se deja explícito. --host :: (IPv6) para la red privada.
-startCommand = "python -m uvicorn backend.app.main:app --host :: --port $PORT"
+# Sin startCommand: lo define el CMD del Dockerfile (usa `sh -c` para expandir ${PORT}).
+# Railway ejecuta el startCommand como exec (sin shell) y NO expandiría $PORT -> por eso se omite.
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
