@@ -30,8 +30,11 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
 ### 2) backend (FastAPI) — PRIVADO
 - **New service → GitHub repo** (este repo). **Root Directory:** raíz del repo (vacío).
 - Build y arranque: en `railway.toml` de la raíz (config-as-code de ESTE servicio):
-  `startCommand = "uvicorn backend.app.main:app --host :: --port $PORT"`
-  (el `::` es obligatorio para la red privada IPv6 de Railway).
+  `startCommand = "python -m uvicorn backend.app.main:app --host :: --port $PORT"`
+  (`python -m` evita el clásico `uvicorn: command not found`; `::` es obligatorio para
+  la red privada IPv6 de Railway).
+- Deps: se instalan desde `requirements.txt` (raíz) y Python se fija en `.python-version` (3.11).
+  Si cambiaste el Start Command a mano en el dashboard de Railway, ponlo también con `python -m`.
 - **Settings → Networking:** NO generar dominio público (si Railway creó uno, elimínalo).
   Deja solo el **Private Networking** (queda `<backend>.railway.internal`).
 - **Variables:**
