@@ -13,6 +13,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@telegram-apps/init-data-node": "^2.0.10",
     "express": "^4.21.2",
     "http-proxy-middleware": "^3.0.3",
     "react": "^18.2.0",

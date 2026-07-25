@@ -17,6 +17,6 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
-COPY server.js telegramAuth.js ./
+COPY server.js ./
 # Railway inyecta PORT; server.js escucha en process.env.PORT.
 CMD ["node", "server.js"]

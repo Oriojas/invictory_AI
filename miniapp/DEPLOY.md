@@ -72,7 +72,7 @@ Navegador (Telegram) → https://<frontend>.up.railway.app   (público = URL de 
 - Multipart (audio/imagen): el proxy hace streaming del body (sin body-parser sobre `/api`).
 - Secretos solo como variables de Railway; `.env` sigue en `.gitignore`.
 - **Auth (implementada en el proxy):** `server.js` valida la firma `initData` de Telegram con
-  `TELEGRAM_BOT_TOKEN` antes de reenviar a `/api` (ver `miniapp/telegramAuth.js`). El frontend manda
+  `TELEGRAM_BOT_TOKEN` con la librería oficial `@telegram-apps/init-data-node` antes de reenviar a `/api`. El frontend manda
   el header `X-Telegram-Init-Data` en cada petición. Así solo una Mini App real de tu bot puede usar
   la API; peticiones anónimas → 401. El backend sigue intacto y privado.
 - **Límite honesto:** esto restringe a usuarios reales del bot; un operario podría reusar *su* initData
