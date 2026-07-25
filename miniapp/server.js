@@ -13,7 +13,15 @@ const DIST = path.join(__dirname, "dist");
 
 const PORT = process.env.PORT || 4173;
 const HOST = "::"; // dual-stack IPv6/IPv4 (compatible con Railway)
-const BACKEND = process.env.BACKEND_INTERNAL_URL;
+
+// Normaliza el target del proxy. Railway suele dar el dominio privado SIN esquema
+// (ej. "backend.railway.internal:8080"); sin "http://" http-proxy revienta en requires-port.
+function normalizeBackend(raw) {
+  const u = (raw || "").trim();
+  if (!u) return "http://127.0.0.1:8080"; // dev local
+  return /^https?:\/\//i.test(u) ? u : `http://${u}`;
+}
+const BACKEND = normalizeBackend(process.env.BACKEND_INTERNAL_URL);
 
 // Auth: solo peticiones con initData válido de Telegram pueden pasar a /api.
 // Se fuerza cuando hay TELEGRAM_BOT_TOKEN (prod); sin token (dev local) NO se fuerza.
@@ -29,9 +37,9 @@ const BOT_TOKEN = cleanToken(process.env.TELEGRAM_BOT_TOKEN);
 const INITDATA_MAX_AGE = Number(process.env.INITDATA_MAX_AGE_SECONDS || 86400);
 const AUTH_ENFORCED = !!BOT_TOKEN;
 
-if (!BACKEND) {
+if (!process.env.BACKEND_INTERNAL_URL) {
   console.warn(
-    "[server] BACKEND_INTERNAL_URL no definido — las llamadas a /api fallarán. " +
+    "[server] BACKEND_INTERNAL_URL no definido — usando fallback local. " +
       "En Railway: http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:${{backend.PORT}}"
   );
 }
@@ -65,9 +73,18 @@ app.use((req, res, next) => {
 app.use(
   createProxyMiddleware({
     pathFilter: "/api",
-    target: BACKEND || "http://127.0.0.1:8080",
+    target: BACKEND,
     changeOrigin: true,
     xfwd: true,
+    on: {
+      error: (err, _req, res) => {
+        console.error(`[proxy] error hacia ${BACKEND}: ${err.message}`);
+        if (res && !res.headersSent && typeof res.writeHead === "function") {
+          res.writeHead(502, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ detail: "Backend no disponible" }));
+        }
+      },
+    },
   })
 );
 
