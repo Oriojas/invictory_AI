@@ -4,6 +4,15 @@
 
 ---
 
+## 🔗 Enlaces de Interés
+
+- **Landing Page**: 
+- **Video Pitch**: 
+- **Pitch Deck (Presentación)**: [Ver Presentación en Google Slides](https://docs.google.com/presentation/d/15nrBpftSDrdij5Z69bnZO74sCXQiHb3K/edit?usp=sharing&ouid=108128111373168036932&rtpof=true&sd=true)
+- **Telegram Mini App (Bot)**: [Abrir col_inventory_bot en Telegram](https://t.me/col_inventory_bot)
+
+---
+
 ## 📁 Gestión Centralizada de Prompts por Actor (`resources/prompts/`)
 
 Para garantizar mantenibilidad, evolución continua y separar la lógica del software de las instrucciones de Inteligencia Artificial, **todos los prompts del proyecto están centralizados en archivos JSON** dentro de la carpeta `resources/prompts/`.
@@ -186,6 +195,7 @@ invictory_AI/
 ├── .env.example               # Variables de entorno sanitizadas (incluye umbrales de anomalía)
 ├── pyproject.toml             # Gestión de paquetes Python con uv y pytest
 ├── README.md                  # Documentación completa del proyecto con diagrama Mermaid
+├── MANUAL_OPERATIVO_ADOPCION.md # Manual formal de adopción operativa en campo
 ├── alembic.ini                # Configuración de migraciones de base de datos
 ├── alembic/                   # Versiones de migraciones PostgreSQL
 ├── resources/                 # 📁 Prompts Centralizados por Actor (.json)
@@ -214,7 +224,7 @@ invictory_AI/
 │   │   ├── services/          # Servicios STT, OCR, Detector de Anomalías y Prompt Loader
 │   │   │   ├── prompt_loader.py
 │   │   │   ├── stt_service.py
-│   │   │   ├── ocr_service.py
+   │   │   ├── ocr_service.py
 │   │   │   ├── anomaly_detector.py # 🚨 Servicio de detección de anomalías pre-guardado
 │   │   │   └── inventory_agent.py
 │   │   └── routers/           # Routers /capture, /inventory, /dashboard y /agent
@@ -226,10 +236,13 @@ invictory_AI/
 │       ├── test_capture_integration.py
 │       ├── test_inventory_api.py
 │       └── test_dashboard_api.py
-├── miniapp/                   # Telegram Mini App (HTML5 + CSS + JS)
-│   ├── index.html
-│   ├── styles.css
-│   └── app.js                 # 🚨 Renderizado de alertas visuales de anomalía en tiempo real
+├── miniapp/                   # Telegram Mini App (React + Vite + Smart Offline Queue)
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── server.js              # Proxy de desarrollo y producción
+│   ├── DEPLOY.md              # Guía de despliegue
+│   ├── OFFLINE.md             # Guía técnica de resiliencia offline
+│   └── src/                   # Pantallas UI, Captura Multimodal y QueueDB IndexedDB
 └── frontend/                  # Aplicación React + Vite + Vitest
     ├── package.json
     ├── vite.config.js
@@ -388,7 +401,7 @@ uv run pytest -v
 ```
 
 ### Pruebas del Frontend (Vitest)
-Ejecuta las 7 pruebas de componentes e interfaz en React:
+Ejecuta las 8 pruebas de componentes e interfaz en React:
 
 ```bash
 cd frontend
