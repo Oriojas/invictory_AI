@@ -6,8 +6,7 @@
 
 ## 🔗 Enlaces de Interés
 
-- **Landing Page**: 
-- **Video Pitch**: 
+- **Video Pitch**: [Ver Video Demo Invictory_AI](https://youtu.be/THniQEV5cUA)
 - **Pitch Deck (Presentación)**: [Ver Presentación en Google Slides](https://docs.google.com/presentation/d/15nrBpftSDrdij5Z69bnZO74sCXQiHb3K/edit?usp=sharing&ouid=108128111373168036932&rtpof=true&sd=true)
 - **Telegram Mini App (Bot)**: [Abrir col_inventory_bot en Telegram](https://t.me/col_inventory_bot)
 
