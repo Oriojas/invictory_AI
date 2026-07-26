@@ -10,7 +10,9 @@
 - **Video Pitch**: [Ver Video Demo Invictory_AI](https://youtu.be/THniQEV5cUA)
 - **Pitch Deck (Presentación)**: [Ver Presentación en Google Slides](https://docs.google.com/presentation/d/15nrBpftSDrdij5Z69bnZO74sCXQiHb3K/edit?usp=sharing&ouid=108128111373168036932&rtpof=true&sd=true)
 - **Telegram Mini App (Bot)**: [Abrir col_inventory_bot en Telegram](https://t.me/col_inventory_bot)
+
 ---
+
 
 ## 📁 Gestión Centralizada de Prompts por Actor (`resources/prompts/`)
 
@@ -223,7 +225,7 @@ invictory_AI/
 │   │   ├── services/          # Servicios STT, OCR, Detector de Anomalías y Prompt Loader
 │   │   │   ├── prompt_loader.py
 │   │   │   ├── stt_service.py
-   │   │   ├── ocr_service.py
+│   │   │   ├── ocr_service.py
 │   │   │   ├── anomaly_detector.py # 🚨 Servicio de detección de anomalías pre-guardado
 │   │   │   └── inventory_agent.py
 │   │   └── routers/           # Routers /capture, /inventory, /dashboard y /agent
@@ -450,4 +452,3 @@ Desarrollado para el **Reto de Hotelería** de la **Hackathon Colsubsidio x 30X*
 </table>
 
 </div>
-

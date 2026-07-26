@@ -31,8 +31,26 @@ export default function LandingPage({ onGoToDashboard }) {
       title: '📱 Operatividad Móvil & Cola Diferida (Offline Queue)',
       desc: 'Funciona en dispositivos móviles (iOS, Android, Tablets). En áreas sin señal, los audios y fotos se guardan en cola local y se procesan automáticamente al recuperar cobertura.'
     }
-
   ];
+
+  const teamMembers = [
+    {
+      name: 'Oscar Riojas',
+      role: 'Backend, AI Engineer & Data Science',
+      image: '/team/oscar_riojas.jpg'
+    },
+    {
+      name: 'Felipe Marín',
+      role: 'AI Engineer Infraestructura & Backend',
+      image: '/team/felipe_marin.jpg'
+    },
+    {
+      name: 'Jhon Tejada',
+      role: 'Frontend, Product Designer Vibecoder',
+      image: '/team/jhon_tejada.jpg'
+    }
+  ];
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
@@ -103,10 +121,74 @@ export default function LandingPage({ onGoToDashboard }) {
             ))}
           </div>
 
+
+
           {/* 5. Sección Roadmap de Evolución de Producto (V1.0 a V4.0) */}
+
           <InvictoryRoadmap />
 
-          {/* CTA Comercial Final con Botón de Descarga del Manual de Adopción */}
+          {/* 6. Sección del Equipo Detrás de Invictory_AI */}
+          <div className={`motion-reveal ${enterpriseInView ? 'is-visible' : ''}`} style={{
+            marginTop: '56px',
+            marginBottom: '40px',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
+              👥 Equipo Detrás de Invictory_AI
+            </h2>
+            <p style={{ color: '#575756', fontWeight: 500, fontSize: '16px', marginTop: '8px', marginBottom: '32px' }}>
+              Diseñadores, ingenieros de IA y especialistas de datos impulsando la innovación en Colsubsidio.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '28px' }}>
+              {teamMembers.map((m, idx) => (
+                <div key={idx} className="corporate-card motion-card-interactive" style={{
+                  backgroundColor: '#FFFFFF',
+                  padding: '32px 24px',
+                  borderRadius: '16px',
+                  border: '1px solid #c1c6d3',
+                  boxShadow: '0 8px 24px rgba(0, 103, 177, 0.06)',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    width: '130px',
+                    height: '130px',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    border: '4px solid #0067b1',
+                    boxShadow: '0 8px 20px rgba(0, 103, 177, 0.2)',
+                    marginBottom: '18px',
+                    backgroundColor: '#F0F6FA'
+                  }}>
+                    <img
+                      src={m.image}
+                      alt={m.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+
+                  <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#111827', marginBottom: '6px' }}>
+                    {m.name}
+                  </h3>
+                  <span style={{
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#0067b1',
+                    backgroundColor: '#F0F6FA',
+                    padding: '4px 12px',
+                    borderRadius: '20px'
+                  }}>
+                    {m.role}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Comercial Final con Botones */}
           <div className={`motion-reveal ${enterpriseInView ? 'is-visible' : ''}`} style={{
             textAlign: 'center',
             marginTop: '56px',
