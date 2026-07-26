@@ -125,6 +125,26 @@ export default function LandingPage({ onGoToDashboard }) {
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <a
+                href="https://t.me/col_inventory_bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="corporate-btn corporate-btn-yellow motion-btn-interactive"
+                style={{
+                  backgroundColor: '#ffd000',
+                  color: '#111827',
+                  padding: '18px 32px',
+                  fontSize: '15px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  textDecoration: 'none',
+                  fontWeight: 800
+                }}
+              >
+                📲 Probar Telegram Mini App
+              </a>
+
               <button
                 onClick={onGoToDashboard}
                 className="corporate-btn motion-btn-interactive"
@@ -143,10 +163,8 @@ export default function LandingPage({ onGoToDashboard }) {
               <a
                 href="/Manual_Operativo_Adopcion_Colsubsidio.pdf"
                 download="Manual_Operativo_Adopcion_Colsubsidio.pdf"
-                className="corporate-btn corporate-btn-yellow motion-btn-interactive"
+                className="corporate-btn corporate-btn-outline motion-btn-interactive"
                 style={{
-                  backgroundColor: '#ffd000',
-                  color: '#111827',
                   padding: '18px 32px',
                   fontSize: '15px',
                   display: 'inline-flex',
@@ -155,11 +173,11 @@ export default function LandingPage({ onGoToDashboard }) {
                   textDecoration: 'none'
                 }}
               >
-                <IconDownload size={20} color="#111827" />
+                <IconDownload size={20} color="#0067b1" />
                 Descargar Manual de Adopción (PDF)
               </a>
-
             </div>
+
           </div>
         </section>
       </main>
