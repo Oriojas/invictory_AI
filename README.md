@@ -6,10 +6,10 @@
 
 ## 🔗 Enlaces de Interés
 
+- **Landing Page**: [Visitar Landing Page en Vivo (Netlify)](https://bucolic-kangaroo-5396ea.netlify.app/)
 - **Video Pitch**: [Ver Video Demo Invictory_AI](https://youtu.be/THniQEV5cUA)
 - **Pitch Deck (Presentación)**: [Ver Presentación en Google Slides](https://docs.google.com/presentation/d/15nrBpftSDrdij5Z69bnZO74sCXQiHb3K/edit?usp=sharing&ouid=108128111373168036932&rtpof=true&sd=true)
 - **Telegram Mini App (Bot)**: [Abrir col_inventory_bot en Telegram](https://t.me/col_inventory_bot)
-
 ---
 
 ## 📁 Gestión Centralizada de Prompts por Actor (`resources/prompts/`)
@@ -420,4 +420,34 @@ npm test
 ---
 
 ## 🏆 Créditos
+
 Desarrollado para el **Reto de Hotelería** de la **Hackathon Colsubsidio x 30X**.
+
+---
+
+## 👥 Equipo Detrás de Invictory_AI
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="220">
+      <img src="docs/team/oscar_riojas.jpg" width="130" height="130" style="border-radius: 50%; object-fit: cover;" alt="Oscar Riojas" /><br /><br />
+      <b>Oscar Riojas</b><br />
+      <small>Backend, AI Engineer & Data Science</small>
+    </td>
+    <td align="center" width="220">
+      <img src="docs/team/felipe_marin.jpg" width="130" height="130" style="border-radius: 50%; object-fit: cover;" alt="Felipe Marín" /><br /><br />
+      <b>Felipe Marín</b><br />
+      <small>AI Engineer Infraestructura & Backend</small>
+    </td>
+    <td align="center" width="220">
+      <img src="docs/team/jhon_tejada.jpg" width="130" height="130" style="border-radius: 50%; object-fit: cover;" alt="Jhon Tejada" /><br /><br />
+      <b>Jhon Tejada</b><br />
+      <small>Frontend, Product Designer Vibecoder</small>
+    </td>
+  </tr>
+</table>
+
+</div>
+

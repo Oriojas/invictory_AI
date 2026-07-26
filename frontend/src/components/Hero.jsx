@@ -105,12 +105,31 @@ export default function Hero({ onGoToDashboard }) {
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <a
+            href="https://t.me/col_inventory_bot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="corporate-btn corporate-btn-yellow motion-btn-interactive"
+            style={{
+              backgroundColor: '#ffd000', // Amarillo Colsubsidio
+              color: '#111827',
+              padding: '16px 30px',
+              fontSize: '15px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              textDecoration: 'none',
+              fontWeight: 800
+            }}
+          >
+            📲 Probar Telegram Mini App
+          </a>
           <button
             onClick={onGoToDashboard}
             className="corporate-btn motion-btn-interactive"
             style={{
               backgroundColor: '#0067b1', // Azul Colsubsidio
-              padding: '16px 36px',
+              padding: '16px 32px',
               fontSize: '15px',
               display: 'inline-flex',
               alignItems: 'center',
@@ -122,21 +141,21 @@ export default function Hero({ onGoToDashboard }) {
           </button>
           <a
             href="#workflow-section"
-            className="corporate-btn corporate-btn-yellow motion-btn-interactive"
+            className="corporate-btn corporate-btn-outline motion-btn-interactive"
             style={{
-              backgroundColor: '#ffd000', // Amarillo Colsubsidio
-              color: '#111827',
-              padding: '16px 30px',
+              padding: '16px 28px',
               fontSize: '15px',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '10px',
+              textDecoration: 'none'
             }}
           >
-            <IconZap size={20} color="#111827" />
+            <IconZap size={20} color="#0067b1" />
             Ver Cómo Funciona
           </a>
         </div>
+
       </div>
 
       {/* Animación SVG Fluida & Organizada (Invictory AI Workflow Animation) */}
