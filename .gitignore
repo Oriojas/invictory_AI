@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.*.local
+PRESENTACION_PITCHDECK_LOCAL.html
+*_LOCAL.html
 
 # Python & Virtual Environments (uv / pip)
 __pycache__/
